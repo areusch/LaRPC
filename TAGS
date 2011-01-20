@@ -1,0 +1,940 @@
+
+acl.cc,178
+namespace larpc 9,103
+bool ActionSpecifier::operator==(larpc::ActionSpecifier::operator==11,122
+ACL::ACL(17,301
+void ACL::SetAccess(19,360
+bool ACL::IsAccessGranted(23,456
+
+acl.h,328
+#define _ACL_H8,106
+namespace larpc 21,307
+class ActionSpecifier larpc::ActionSpecifier28,375
+struct hash<hash49,783
+  long operator()(hash::operator()51,830
+namespace larpc 59,1048
+class ACL larpc::ACL61,1067
+  typedef hash_map<ActionSpecifier,bool,hash<ActionSpecifier> > AclHashMap;larpc::ACL::AclHashMap62,1079
+
+async_iostream.cc,202
+namespace larpc 11,220
+async_ostream::async_ostream(larpc::async_ostream::async_ostream19,373
+void async_ostream::write(larpc::async_ostream::write22,467
+void async_ostream::write_finished(38,863
+
+async_iostream.h,300
+#define _ASYNC_IOSTREAM_H8,139
+class async_ostream 26,501
+  typedef function2<void, const error_code&, ::std::size_t> write_callback;async_ostream::write_callback28,532
+  typedef function2<void, ::boost::asio::const_buffers_1, write_callback> write_function;async_ostream::write_function29,608
+
+channel.cc,117
+namespace larpc 13,252
+void Channel::SendMessage(larpc::Channel::SendMessage18,336
+void Channel::Shutdown(22,412
+
+channel.h,106
+#define _CHANNEL_H8,116
+class Channel 24,355
+  inline string GetChannelId(Channel::GetChannelId32,498
+
+constants.h,113
+#define _CONSTANTS_H8,137
+#define EVP_BYTESTOKEY_COUNT 10,159
+#define LARPC_PRIVATE_KEY_MAX_SIZE_BYTES 11,203
+
+crypto.cc,424
+namespace larpc 16,311
+bool DecryptBuffer(larpc::DecryptBuffer18,330
+bool PasswordDecryptBuffer(99,2757
+bool EncryptBuffer(169,5107
+bool PasswordEncryptBuffer(250,7568
+typedef int(*ExtractFunction)ExtractFunction320,9901
+static bool PEMExtractData(322,9946
+bool PublicKeyToPKCS8String(342,10493
+bool PublicKeyToPKCS8String(352,10761
+bool X509ToString(361,11048
+typedef void(*LoadFunction)LoadFunction370,11304
+
+crypto.h,24
+#define _CRYPTO_H8,137
+
+hash_common.h,131
+#define _HASH_COMMON_H8,156
+  bool operator()(operator()15,267
+struct eqstr 21,373
+  bool operator()(eqstr::operator()22,388
+
+hash_map.h,108
+#define _HASH_MAP_H8,133
+#define HASHTABLE_NAMESPACE_START 18,271
+#define HASHTABLE_NAMESPACE_END 19,327
+
+hash_set.h,108
+#define _HASH_SET_H8,133
+#define HASHTABLE_NAMESPACE_START 18,271
+#define HASHTABLE_NAMESPACE_END 19,327
+
+key.cc,185
+namespace larpc 10,135
+KeyStore::KeyStore(larpc::KeyStore::KeyStore12,154
+KeyStore::~KeyStore(larpc::KeyStore::~KeyStore14,179
+EVP_PKEY* KeyStore::Get(larpc::KeyStore::Get16,205
+
+key.h,129
+#define _KEY_H8,123
+class KeyStore 21,301
+  typedef hash_map<string, EVP_PKEY*, hash<string> > KeyMap;KeyStore::KeyMap23,327
+
+larpc.cc,878
+namespace larpc 24,528
+LaRPCFactory* LaRPCFactory::FromConfigFile(larpc::LaRPCFactory::FromConfigFile39,934
+LaRPCFactory::LaRPCFactory(63,1611
+LaRPCFactory::~LaRPCFactory(69,1897
+void LaRPCFactory::MaybeFreeMachineKey(77,2017
+bool LaRPCFactory::ReadConfigFromStream(82,2116
+bool LaRPCFactory::MergeConfig(99,2441
+EVP_PKEY* LaRPCFactory::ReadMachineKey(123,2930
+bool LaRPCFactory::DecryptMachineKey(187,5208
+const Config& LaRPCFactory::GetConfig(202,5868
+bool LaRPCFactory::LoadPrinciplesFromConfig(216,6161
+void LaRPCFactory::ReplacePrinciples(258,7493
+void LaRPCFactory::RemovePrinciple(291,8522
+pair<Principle*,unsigned int> GetPrinciple(328,9604
+Principle* HandleNewPrinciple(341,10024
+void LaRPCFactory::HandleNewLocalPrinciple(368,10796
+void LaRPCFactory::Accept(374,10951
+void LaRPCFactory::HandleAccept(397,11632
+void LaRPCFactory::Shutdown(412,12017
+
+larpc.h,364
+#define _LARPC_H8,126
+  int operator(30,546
+typedef char*(*key_generator_func)key_generator_func56,1222
+class LaRPCFactory 58,1261
+  typedef multimap<const Principle*,Channel*> PrincipleChannelMap;LaRPCFactory::PrincipleChannelMap60,1292
+  typedef hash_map<EVP_PKEY*, int, hash<EVP_PKEY*>, eq_principle> PrincipleIdMap;LaRPCFactory::PrincipleIdMap61,1359
+
+larpc.pb.cc,19364
+#define INTERNAL_SUPPRESS_PROTOBUF_FIELD_DEPRECATION3,61
+namespace larpc 12,397
+void protobuf_AssignDesc_larpc_2eproto(56,2562
+inline void protobuf_AssignDescriptorsOnce(::protobuf_AssignDescriptorsOnce278,14494
+void protobuf_RegisterTypes(283,14670
+void protobuf_ShutdownFile_larpc_2eproto(313,16508
+void protobuf_AddDesc_larpc_2eproto(340,17554
+struct StaticDescriptorInitializer_larpc_2eproto 417,22370
+  StaticDescriptorInitializer_larpc_2eproto(StaticDescriptorInitializer_larpc_2eproto::StaticDescriptorInitializer_larpc_2eproto418,22421
+} static_descriptor_initializer_larpc_2eproto_;421,22511
+const ::std::string EncryptionDescriptor::_default_cipher_;426,22633
+const ::std::string EncryptionDescriptor::_default_key_;427,22693
+const ::std::string EncryptionDescriptor::_default_iv_;428,22750
+const ::std::string EncryptionDescriptor::_default_password_digest_algorithm_;429,22806
+const ::std::string EncryptionDescriptor::_default_key_hash_;430,22885
+const int EncryptionDescriptor::kCipherFieldNumber;432,22964
+const int EncryptionDescriptor::kKeyFieldNumber;433,23016
+const int EncryptionDescriptor::kIvFieldNumber;434,23065
+const int EncryptionDescriptor::kIsPasswordBasedFieldNumber;435,23113
+const int EncryptionDescriptor::kPasswordDigestAlgorithmFieldNumber;436,23174
+const int EncryptionDescriptor::kKeyHashFieldNumber;437,23243
+EncryptionDescriptor::EncryptionDescriptor(440,23318
+void EncryptionDescriptor::InitAsDefaultInstance(444,23384
+EncryptionDescriptor::EncryptionDescriptor(447,23440
+void EncryptionDescriptor::SharedCtor(452,23557
+EncryptionDescriptor::~EncryptionDescriptor(463,24028
+void EncryptionDescriptor::SharedDtor(467,24095
+const EncryptionDescriptor& EncryptionDescriptor::default_instance(492,24688
+EncryptionDescriptor* EncryptionDescriptor::default_instance_ 496,24857
+EncryptionDescriptor* EncryptionDescriptor::New(498,24928
+void EncryptionDescriptor::Clear(502,25024
+bool EncryptionDescriptor::MergePartialFromCodedStream(535,25801
+#define DO_(537,25912
+#undef DO_647,30510
+void EncryptionDescriptor::SerializeWithCachedSizes(650,30524
+::google::protobuf::uint8* EncryptionDescriptor::SerializeWithCachedSizesToArray(714,32929
+int EncryptionDescriptor::ByteSize(778,35297
+void EncryptionDescriptor::MergeFrom(832,36745
+void EncryptionDescriptor::MergeFrom(844,37134
+void EncryptionDescriptor::CopyFrom(869,37815
+void EncryptionDescriptor::CopyFrom(875,37956
+bool EncryptionDescriptor::IsInitialized(881,38090
+void EncryptionDescriptor::Swap(886,38162
+::google::protobuf::Metadata EncryptionDescriptor::GetMetadata(900,38702
+const ::std::string Config::_default_machine_key_file_;911,39063
+const ::std::string Config::_default_local_principles_file_;912,39119
+const ::std::string Config::_default_bind_ip_;913,39180
+const int Config::kMachineKeyFileFieldNumber;915,39244
+const int Config::kMachineKeyEncryptionFieldNumber;916,39290
+const int Config::kLocalPrinciplesFileFieldNumber;917,39342
+const int Config::kBindIpFieldNumber;918,39393
+const int Config::kBindPortFieldNumber;919,39431
+Config::Config(922,39493
+void Config::InitAsDefaultInstance(926,39531
+Config::Config(930,39698
+void Config::SharedCtor(935,39773
+Config::~Config(945,40156
+void Config::SharedDtor(949,40195
+const ::google::protobuf::Descriptor* Config::descriptor(964,40565
+const Config& Config::default_instance(969,40694
+Config* Config::default_instance_ 973,40835
+Config* Config::New(975,40878
+void Config::Clear(979,40932
+bool Config::MergePartialFromCodedStream(1005,41646
+#define DO_(1007,41743
+#undef DO_1098,45572
+void Config::SerializeWithCachedSizes(1101,45586
+::google::protobuf::uint8* Config::SerializeWithCachedSizesToArray(1153,47528
+int Config::ByteSize(1204,49424
+void Config::MergeFrom(1253,50845
+void Config::MergeFrom(1265,51192
+void Config::CopyFrom(1287,51866
+void Config::CopyFrom(1293,51993
+bool Config::IsInitialized(1299,52099
+void Config::Swap(1305,52221
+::google::protobuf::Metadata Config::GetMetadata(1318,52733
+const int ChannelMessage::kRequestsFieldNumber;1330,53069
+const int ChannelMessage::kResponsesFieldNumber;1331,53117
+const int ChannelMessage::kControlFieldNumber;1332,53166
+ChannelMessage::ChannelMessage(1335,53235
+void ChannelMessage::InitAsDefaultInstance(1339,53289
+ChannelMessage::ChannelMessage(1343,53437
+void ChannelMessage::SharedCtor(1348,53536
+ChannelMessage::~ChannelMessage(1354,53662
+void ChannelMessage::SharedDtor(1358,53717
+const ::google::protobuf::Descriptor* ChannelMessage::descriptor(1364,53816
+const ChannelMessage& ChannelMessage::default_instance(1369,53961
+ChannelMessage* ChannelMessage::default_instance_ 1373,54118
+ChannelMessage* ChannelMessage::New(1375,54177
+void ChannelMessage::Clear(1379,54255
+bool ChannelMessage::MergePartialFromCodedStream(1391,54571
+#define DO_(1393,54676
+#undef DO_1451,56933
+void ChannelMessage::SerializeWithCachedSizes(1454,56947
+::google::protobuf::uint8* ChannelMessage::SerializeWithCachedSizesToArray(1486,58036
+int ChannelMessage::ByteSize(1516,59033
+void ChannelMessage::MergeFrom(1553,60119
+void ChannelMessage::MergeFrom(1565,60490
+void ChannelMessage::CopyFrom(1577,60898
+void ChannelMessage::CopyFrom(1583,61033
+bool ChannelMessage::IsInitialized(1589,61155
+void ChannelMessage::Swap(1597,61304
+::google::protobuf::Metadata ChannelMessage::GetMetadata(1608,61664
+const ::std::string ChannelSetup::_default_machine_id_;1619,62007
+const int ChannelSetup::kMachineIdFieldNumber;1621,62080
+const int ChannelSetup::kPrinciplesFieldNumber;1622,62127
+ChannelSetup::ChannelSetup(1625,62197
+void ChannelSetup::InitAsDefaultInstance(1629,62247
+ChannelSetup::ChannelSetup(1632,62295
+void ChannelSetup::SharedCtor(1637,62388
+ChannelSetup::~ChannelSetup(1643,62561
+void ChannelSetup::SharedDtor(1647,62612
+const ChannelSetup& ChannelSetup::default_instance(1660,62903
+ChannelSetup* ChannelSetup::default_instance_ 1664,63056
+ChannelSetup* ChannelSetup::New(1666,63111
+void ChannelSetup::Clear(1670,63183
+bool ChannelSetup::MergePartialFromCodedStream(1683,63493
+#define DO_(1685,63596
+#undef DO_1731,65464
+void ChannelSetup::SerializeWithCachedSizes(1734,65478
+::google::protobuf::uint8* ChannelSetup::SerializeWithCachedSizesToArray(1763,66526
+int ChannelSetup::ByteSize(1789,67458
+void ChannelSetup::MergeFrom(1818,68270
+void ChannelSetup::MergeFrom(1830,68635
+void ChannelSetup::CopyFrom(1841,68966
+void ChannelSetup::CopyFrom(1847,69099
+bool ChannelSetup::IsInitialized(1853,69217
+void ChannelSetup::Swap(1862,69457
+::google::protobuf::Metadata ChannelSetup::GetMetadata(1872,69782
+const ::std::string PrincipleVersionRecord::_default_hash_;1883,70119
+const int PrincipleVersionRecord::kVersionFieldNumber;1885,70196
+const int PrincipleVersionRecord::kHashFieldNumber;1886,70251
+PrincipleVersionRecord::PrincipleVersionRecord(1889,70325
+void PrincipleVersionRecord::InitAsDefaultInstance(1893,70395
+PrincipleVersionRecord::PrincipleVersionRecord(1896,70453
+void PrincipleVersionRecord::SharedCtor(1901,70576
+PrincipleVersionRecord::~PrincipleVersionRecord(1908,70764
+void PrincipleVersionRecord::SharedDtor(1912,70835
+const PrincipleVersionRecord& PrincipleVersionRecord::default_instance(1925,71138
+PrincipleVersionRecord* PrincipleVersionRecord::default_instance_ 1929,71311
+PrincipleVersionRecord* PrincipleVersionRecord::New(1931,71386
+void PrincipleVersionRecord::Clear(1935,71488
+bool PrincipleVersionRecord::MergePartialFromCodedStream(1948,71786
+#define DO_(1950,71899
+#undef DO_1996,73645
+void PrincipleVersionRecord::SerializeWithCachedSizes(1999,73659
+::google::protobuf::uint8* PrincipleVersionRecord::SerializeWithCachedSizesToArray(2027,74626
+int PrincipleVersionRecord::ByteSize(2051,75458
+void PrincipleVersionRecord::MergeFrom(2079,76167
+void PrincipleVersionRecord::MergeFrom(2091,76562
+void PrincipleVersionRecord::CopyFrom(2104,76927
+void PrincipleVersionRecord::CopyFrom(2110,77070
+bool PrincipleVersionRecord::IsInitialized(2116,77208
+void PrincipleVersionRecord::Swap(2122,77346
+::google::protobuf::Metadata PrincipleVersionRecord::GetMetadata(2132,77678
+const ::std::string PrincipleDescriptor::_default_display_name_;2143,78045
+const ::std::string PrincipleDescriptor::_default_public_key_;2144,78110
+const ::std::string PrincipleDescriptor::_default_trusting_x509_certificate_;2145,78173
+const ::std::string PrincipleDescriptor::_default_encrypted_private_key_;2146,78251
+const int PrincipleDescriptor::kDisplayNameFieldNumber;2148,78342
+const int PrincipleDescriptor::kPublicKeyFieldNumber;2149,78398
+const int PrincipleDescriptor::kVersionFieldNumber;2150,78452
+const int PrincipleDescriptor::kTrustingX509CertificateFieldNumber;2151,78504
+const int PrincipleDescriptor::kEncryptedPrivateKeyFieldNumber;2152,78572
+const int PrincipleDescriptor::kPrivateKeyEncryptionDescriptorFieldNumber;2153,78636
+const int PrincipleDescriptor::kPastVersionsFieldNumber;2154,78711
+PrincipleDescriptor::PrincipleDescriptor(2157,78790
+void PrincipleDescriptor::InitAsDefaultInstance(2161,78854
+PrincipleDescriptor::PrincipleDescriptor(2165,79045
+void PrincipleDescriptor::SharedCtor(2170,79159
+PrincipleDescriptor::~PrincipleDescriptor(2181,79661
+void PrincipleDescriptor::SharedDtor(2185,79726
+const ::google::protobuf::Descriptor* PrincipleDescriptor::descriptor(2203,80236
+const PrincipleDescriptor& PrincipleDescriptor::default_instance(2208,80391
+PrincipleDescriptor* PrincipleDescriptor::default_instance_ 2212,80558
+PrincipleDescriptor* PrincipleDescriptor::New(2214,80627
+void PrincipleDescriptor::Clear(2218,80720
+bool PrincipleDescriptor::MergePartialFromCodedStream(2250,81653
+#define DO_(2252,81763
+#undef DO_2373,87021
+void PrincipleDescriptor::SerializeWithCachedSizes(2376,87035
+::google::protobuf::uint8* PrincipleDescriptor::SerializeWithCachedSizesToArray(2443,89673
+int PrincipleDescriptor::ByteSize(2511,92301
+void PrincipleDescriptor::MergeFrom(2575,94305
+void PrincipleDescriptor::MergeFrom(2587,94691
+void PrincipleDescriptor::CopyFrom(2613,95561
+void PrincipleDescriptor::CopyFrom(2619,95701
+bool PrincipleDescriptor::IsInitialized(2625,95833
+void PrincipleDescriptor::Swap(2634,96086
+::google::protobuf::Metadata PrincipleDescriptor::GetMetadata(2649,96767
+const ::std::string MethodDescriptor::_default_method_name_;2660,97125
+const int MethodDescriptor::kMethodNameFieldNumber;2662,97203
+MethodDescriptor::MethodDescriptor(2665,97277
+void MethodDescriptor::InitAsDefaultInstance(2669,97335
+MethodDescriptor::MethodDescriptor(2672,97387
+void MethodDescriptor::SharedCtor(2677,97492
+MethodDescriptor::~MethodDescriptor(2683,97671
+void MethodDescriptor::SharedDtor(2687,97730
+const MethodDescriptor& MethodDescriptor::default_instance(2700,98036
+MethodDescriptor* MethodDescriptor::default_instance_ 2704,98197
+MethodDescriptor* MethodDescriptor::New(2706,98260
+void MethodDescriptor::Clear(2710,98344
+bool MethodDescriptor::MergePartialFromCodedStream(2722,98638
+#define DO_(2724,98745
+#undef DO_2756,100035
+void MethodDescriptor::SerializeWithCachedSizes(2759,100049
+::google::protobuf::uint8* MethodDescriptor::SerializeWithCachedSizesToArray(2782,100879
+int MethodDescriptor::ByteSize(2801,101564
+void MethodDescriptor::MergeFrom(2822,102098
+void MethodDescriptor::MergeFrom(2834,102475
+void MethodDescriptor::CopyFrom(2844,102773
+void MethodDescriptor::CopyFrom(2850,102910
+bool MethodDescriptor::IsInitialized(2856,103036
+void MethodDescriptor::Swap(2861,103104
+::google::protobuf::Metadata MethodDescriptor::GetMetadata(2870,103396
+const ::std::string RPCRequest::_default_channel_id_;2881,103745
+const ::std::string RPCRequest::_default_method_parameters_;2882,103799
+const int RPCRequest::kChannelIdFieldNumber;2884,103877
+const int RPCRequest::kRequestIdFieldNumber;2885,103922
+const int RPCRequest::kMethodIdFieldNumber;2886,103967
+const int RPCRequest::kMethodParametersFieldNumber;2887,104011
+RPCRequest::RPCRequest(2890,104085
+void RPCRequest::InitAsDefaultInstance(2894,104131
+RPCRequest::RPCRequest(2898,104281
+void RPCRequest::SharedCtor(2903,104368
+RPCRequest::~RPCRequest(2912,104662
+void RPCRequest::SharedDtor(2916,104709
+const ::google::protobuf::Descriptor* RPCRequest::descriptor(2928,104975
+const RPCRequest& RPCRequest::default_instance(2933,105112
+RPCRequest* RPCRequest::default_instance_ 2937,105261
+RPCRequest* RPCRequest::New(2939,105312
+void RPCRequest::Clear(2943,105378
+bool RPCRequest::MergePartialFromCodedStream(2964,105930
+#define DO_(2966,106031
+#undef DO_3038,108871
+void RPCRequest::SerializeWithCachedSizes(3041,108885
+::google::protobuf::uint8* RPCRequest::SerializeWithCachedSizesToArray(3081,110227
+int RPCRequest::ByteSize(3119,111495
+void RPCRequest::MergeFrom(3161,112660
+void RPCRequest::MergeFrom(3173,113019
+void RPCRequest::CopyFrom(3192,113584
+void RPCRequest::CopyFrom(3198,113715
+bool RPCRequest::IsInitialized(3204,113829
+void RPCRequest::Swap(3209,113891
+::google::protobuf::Metadata RPCRequest::GetMetadata(3221,114325
+const ::std::string RPCResponse::_default_channel_id_;3232,114656
+const ::std::string RPCResponse::_default_response_;3233,114711
+const int RPCResponse::kChannelIdFieldNumber;3235,114781
+const int RPCResponse::kRequestIdFieldNumber;3236,114827
+const int RPCResponse::kResponseFieldNumber;3237,114873
+RPCResponse::RPCResponse(3240,114940
+void RPCResponse::InitAsDefaultInstance(3244,114988
+RPCResponse::RPCResponse(3247,115035
+void RPCResponse::SharedCtor(3252,115125
+RPCResponse::~RPCResponse(3260,115381
+void RPCResponse::SharedDtor(3264,115430
+const RPCResponse& RPCResponse::default_instance(3280,115786
+RPCResponse* RPCResponse::default_instance_ 3284,115937
+RPCResponse* RPCResponse::New(3286,115990
+void RPCResponse::Clear(3290,116059
+bool RPCResponse::MergePartialFromCodedStream(3308,116478
+#define DO_(3310,116580
+#undef DO_3369,118863
+void RPCResponse::SerializeWithCachedSizes(3372,118877
+::google::protobuf::uint8* RPCResponse::SerializeWithCachedSizesToArray(3406,120012
+int RPCResponse::ByteSize(3437,121047
+void RPCResponse::MergeFrom(3472,121963
+void RPCResponse::MergeFrom(3484,122325
+void RPCResponse::CopyFrom(3500,122757
+void RPCResponse::CopyFrom(3506,122889
+bool RPCResponse::IsInitialized(3512,123005
+void RPCResponse::Swap(3517,123068
+::google::protobuf::Metadata RPCResponse::GetMetadata(3528,123440
+const ::std::string OpenChannelRequest::_default_initiator_public_key_;3539,123774
+const ::std::string OpenChannelRequest::_default_initiator_certificate_;3540,123846
+const ::std::string OpenChannelRequest::_default_channel_id_;3541,123919
+const int OpenChannelRequest::kInitiatorPublicKeyFieldNumber;3543,123998
+const int OpenChannelRequest::kInitiatorCertificateFieldNumber;3544,124060
+const int OpenChannelRequest::kDesiredPrincipleFieldNumber;3545,124124
+const int OpenChannelRequest::kChannelIdFieldNumber;3546,124184
+OpenChannelRequest::OpenChannelRequest(3549,124259
+void OpenChannelRequest::InitAsDefaultInstance(3553,124321
+OpenChannelRequest::OpenChannelRequest(3557,124493
+void OpenChannelRequest::SharedCtor(3562,124604
+OpenChannelRequest::~OpenChannelRequest(3571,124990
+void OpenChannelRequest::SharedDtor(3575,125053
+const ::google::protobuf::Descriptor* OpenChannelRequest::descriptor(3590,125451
+const OpenChannelRequest& OpenChannelRequest::default_instance(3595,125604
+OpenChannelRequest* OpenChannelRequest::default_instance_ 3599,125769
+OpenChannelRequest* OpenChannelRequest::New(3601,125836
+void OpenChannelRequest::Clear(3605,125926
+bool OpenChannelRequest::MergePartialFromCodedStream(3630,126642
+#define DO_(3632,126751
+#undef DO_3703,129663
+void OpenChannelRequest::SerializeWithCachedSizes(3706,129677
+::google::protobuf::uint8* OpenChannelRequest::SerializeWithCachedSizesToArray(3747,131087
+int OpenChannelRequest::ByteSize(3787,132423
+void OpenChannelRequest::MergeFrom(3829,133663
+void OpenChannelRequest::MergeFrom(3841,134046
+void OpenChannelRequest::CopyFrom(3860,134674
+void OpenChannelRequest::CopyFrom(3866,134813
+bool OpenChannelRequest::IsInitialized(3872,134943
+void OpenChannelRequest::Swap(3880,135116
+::google::protobuf::Metadata OpenChannelRequest::GetMetadata(3892,135610
+const ::std::string OpenChannelResponse::_default_initiator_channel_id_;3903,135965
+const ::std::string OpenChannelResponse::_default_responding_channel_id_;3904,136038
+const ::std::string OpenChannelResponse::_default_responding_certificate_;3905,136112
+const int OpenChannelResponse::kInitiatorChannelIdFieldNumber;3907,136204
+const int OpenChannelResponse::kRespondingChannelIdFieldNumber;3908,136267
+const int OpenChannelResponse::kRespondingCertificateFieldNumber;3909,136331
+OpenChannelResponse::OpenChannelResponse(3912,136419
+void OpenChannelResponse::InitAsDefaultInstance(3916,136483
+OpenChannelResponse::OpenChannelResponse(3919,136538
+void OpenChannelResponse::SharedCtor(3924,136652
+OpenChannelResponse::~OpenChannelResponse(3932,137034
+void OpenChannelResponse::SharedDtor(3936,137099
+const OpenChannelResponse& OpenChannelResponse::default_instance(3955,137658
+OpenChannelResponse* OpenChannelResponse::default_instance_ 3959,137825
+OpenChannelResponse* OpenChannelResponse::New(3961,137894
+void OpenChannelResponse::Clear(3965,137987
+bool OpenChannelResponse::MergePartialFromCodedStream(3987,138614
+#define DO_(3989,138724
+#undef DO_4050,141366
+void OpenChannelResponse::SerializeWithCachedSizes(4053,141380
+::google::protobuf::uint8* OpenChannelResponse::SerializeWithCachedSizesToArray(4091,142836
+int OpenChannelResponse::ByteSize(4127,144192
+void OpenChannelResponse::MergeFrom(4162,145221
+void OpenChannelResponse::MergeFrom(4174,145607
+void OpenChannelResponse::CopyFrom(4190,146125
+void OpenChannelResponse::CopyFrom(4196,146265
+bool OpenChannelResponse::IsInitialized(4202,146397
+void OpenChannelResponse::Swap(4207,146468
+::google::protobuf::Metadata OpenChannelResponse::GetMetadata(4218,146926
+const int ChannelControl::kOpenChannelRequestFieldNumber;4230,147301
+const int ChannelControl::kOpenChannelResponseFieldNumber;4231,147359
+const int ChannelControl::kCloseChannelIdFieldNumber;4232,147418
+ChannelControl::ChannelControl(4235,147494
+void ChannelControl::InitAsDefaultInstance(4239,147548
+ChannelControl::ChannelControl(4242,147598
+void ChannelControl::SharedCtor(4247,147697
+ChannelControl::~ChannelControl(4252,147804
+void ChannelControl::SharedDtor(4256,147859
+const ChannelControl& ChannelControl::default_instance(4266,148082
+ChannelControl* ChannelControl::default_instance_ 4270,148239
+ChannelControl* ChannelControl::New(4272,148298
+void ChannelControl::Clear(4276,148376
+bool ChannelControl::MergePartialFromCodedStream(4284,148590
+#define DO_(4286,148695
+#undef DO_4348,151361
+void ChannelControl::SerializeWithCachedSizes(4351,151375
+::google::protobuf::uint8* ChannelControl::SerializeWithCachedSizesToArray(4386,152779
+int ChannelControl::ByteSize(4418,154088
+void ChannelControl::MergeFrom(4453,155288
+void ChannelControl::MergeFrom(4465,155659
+void ChannelControl::CopyFrom(4473,156000
+void ChannelControl::CopyFrom(4479,156135
+bool ChannelControl::IsInitialized(4485,156257
+void ChannelControl::Swap(4493,156455
+::google::protobuf::Metadata ChannelControl::GetMetadata(4504,156876
+
+larpc.pb.h,25660
+#define PROTOBUF_larpc_2eproto__INCLUDED4,102
+class EncryptionDescriptor 48,1411
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields(EncryptionDescriptor::unknown_fields60,1733
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields(EncryptionDescriptor::mutable_unknown_fields64,1846
+  int GetCachedSize(EncryptionDescriptor::GetCachedSize88,2815
+  void SetCachedSize(EncryptionDescriptor::SetCachedSize92,2922
+  inline bool _has_bit(EncryptionDescriptor::_has_bit180,6337
+  inline void _set_bit(EncryptionDescriptor::_set_bit183,6448
+  inline void _clear_bit(EncryptionDescriptor::_clear_bit186,6540
+class Config 195,6795
+  inline Config& operator=(Config::operator=202,6925
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields(Config::unknown_fields207,7019
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields(Config::mutable_unknown_fields211,7132
+  int GetCachedSize(Config::GetCachedSize235,8031
+  void SetCachedSize(Config::SetCachedSize239,8138
+  inline bool _has_bit(Config::_has_bit311,11188
+  inline void _set_bit(Config::_set_bit314,11299
+  inline void _clear_bit(Config::_clear_bit317,11391
+class ChannelMessage 326,11632
+  inline ChannelMessage& operator=(ChannelMessage::operator=333,11802
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields(ChannelMessage::unknown_fields338,11912
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields(ChannelMessage::mutable_unknown_fields342,12025
+  int GetCachedSize(ChannelMessage::GetCachedSize366,12964
+  void SetCachedSize(ChannelMessage::SetCachedSize370,13071
+  inline bool _has_bit(ChannelMessage::_has_bit420,15212
+  inline void _set_bit(ChannelMessage::_set_bit423,15323
+  inline void _clear_bit(ChannelMessage::_clear_bit426,15415
+class ChannelSetup 435,15664
+  inline ChannelSetup& operator=(ChannelSetup::operator=442,15824
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields(ChannelSetup::unknown_fields447,15930
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields(ChannelSetup::mutable_unknown_fields451,16043
+  int GetCachedSize(ChannelSetup::GetCachedSize475,16972
+  void SetCachedSize(ChannelSetup::SetCachedSize479,17079
+  inline bool _has_bit(ChannelSetup::_has_bit522,18894
+  inline void _set_bit(ChannelSetup::_set_bit525,19005
+  inline void _clear_bit(ChannelSetup::_clear_bit528,19097
+class PrincipleVersionRecord 537,19344
+  inline PrincipleVersionRecord& operator=(PrincipleVersionRecord::operator=544,19554
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields(PrincipleVersionRecord::unknown_fields549,19680
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields(PrincipleVersionRecord::mutable_unknown_fields553,19793
+  int GetCachedSize(PrincipleVersionRecord::GetCachedSize577,20772
+  void SetCachedSize(PrincipleVersionRecord::SetCachedSize581,20879
+  inline bool _has_bit(PrincipleVersionRecord::_has_bit621,22259
+  inline void _set_bit(PrincipleVersionRecord::_set_bit624,22370
+  inline void _clear_bit(PrincipleVersionRecord::_clear_bit627,22462
+class PrincipleDescriptor 636,22719
+  inline PrincipleDescriptor& operator=(PrincipleDescriptor::operator=643,22914
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields(PrincipleDescriptor::unknown_fields648,23034
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields(PrincipleDescriptor::mutable_unknown_fields652,23147
+  int GetCachedSize(PrincipleDescriptor::GetCachedSize676,24111
+  void SetCachedSize(PrincipleDescriptor::SetCachedSize680,24218
+  inline bool _has_bit(PrincipleDescriptor::_has_bit775,28713
+  inline void _set_bit(PrincipleDescriptor::_set_bit778,28824
+  inline void _clear_bit(PrincipleDescriptor::_clear_bit781,28916
+class MethodDescriptor 790,29170
+  inline MethodDescriptor& operator=(MethodDescriptor::operator=797,29350
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields(MethodDescriptor::unknown_fields802,29464
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields(MethodDescriptor::mutable_unknown_fields806,29577
+  int GetCachedSize(MethodDescriptor::GetCachedSize830,30526
+  void SetCachedSize(MethodDescriptor::SetCachedSize834,30633
+  inline bool _has_bit(MethodDescriptor::_has_bit866,31789
+  inline void _set_bit(MethodDescriptor::_set_bit869,31900
+  inline void _clear_bit(MethodDescriptor::_clear_bit872,31992
+class RPCRequest 881,32243
+  inline RPCRequest& operator=(RPCRequest::operator=888,32393
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields(RPCRequest::unknown_fields893,32495
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields(RPCRequest::mutable_unknown_fields897,32608
+  int GetCachedSize(RPCRequest::GetCachedSize921,33527
+  void SetCachedSize(RPCRequest::SetCachedSize925,33634
+  inline bool _has_bit(RPCRequest::_has_bit985,36009
+  inline void _set_bit(RPCRequest::_set_bit988,36120
+  inline void _clear_bit(RPCRequest::_clear_bit991,36212
+class RPCResponse 1000,36457
+  inline RPCResponse& operator=(RPCResponse::operator=1007,36612
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields(RPCResponse::unknown_fields1012,36716
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields(RPCResponse::mutable_unknown_fields1016,36829
+  int GetCachedSize(RPCResponse::GetCachedSize1040,37753
+  void SetCachedSize(RPCResponse::SetCachedSize1044,37860
+  inline bool _has_bit(RPCResponse::_has_bit1096,39807
+  inline void _set_bit(RPCResponse::_set_bit1099,39918
+  inline void _clear_bit(RPCResponse::_clear_bit1102,40010
+class OpenChannelRequest 1111,40256
+  inline OpenChannelRequest& operator=(OpenChannelRequest::operator=1118,40446
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields(OpenChannelRequest::unknown_fields1123,40564
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields(OpenChannelRequest::mutable_unknown_fields1127,40677
+  int GetCachedSize(OpenChannelRequest::GetCachedSize1151,41636
+  void SetCachedSize(OpenChannelRequest::SetCachedSize1155,41743
+  inline bool _has_bit(OpenChannelRequest::_has_bit1219,44522
+  inline void _set_bit(OpenChannelRequest::_set_bit1222,44633
+  inline void _clear_bit(OpenChannelRequest::_clear_bit1225,44725
+class OpenChannelResponse 1234,44978
+  inline OpenChannelResponse& operator=(OpenChannelResponse::operator=1241,45173
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields(OpenChannelResponse::unknown_fields1246,45293
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields(OpenChannelResponse::mutable_unknown_fields1250,45406
+  int GetCachedSize(OpenChannelResponse::GetCachedSize1274,46370
+  void SetCachedSize(OpenChannelResponse::SetCachedSize1278,46477
+  inline bool _has_bit(OpenChannelResponse::_has_bit1334,48990
+  inline void _set_bit(OpenChannelResponse::_set_bit1337,49101
+  inline void _clear_bit(OpenChannelResponse::_clear_bit1340,49193
+class ChannelControl 1349,49447
+  inline ChannelControl& operator=(ChannelControl::operator=1356,49617
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields(ChannelControl::unknown_fields1361,49727
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields(ChannelControl::mutable_unknown_fields1365,49840
+  int GetCachedSize(ChannelControl::GetCachedSize1389,50779
+  void SetCachedSize(ChannelControl::SetCachedSize1393,50886
+  inline bool _has_bit(ChannelControl::_has_bit1452,54088
+  inline void _set_bit(ChannelControl::_set_bit1455,54199
+  inline void _clear_bit(ChannelControl::_clear_bit1458,54291
+inline bool EncryptionDescriptor::has_cipher(1476,54742
+inline void EncryptionDescriptor::clear_cipher(1479,54821
+inline const ::std::string& EncryptionDescriptor::cipher(1485,54955
+inline void EncryptionDescriptor::set_cipher(1488,55043
+inline void EncryptionDescriptor::set_cipher(1495,55236
+inline void EncryptionDescriptor::set_cipher(1502,55420
+inline ::std::string* EncryptionDescriptor::mutable_cipher(1509,55654
+inline bool EncryptionDescriptor::has_key(1518,55856
+inline void EncryptionDescriptor::clear_key(1521,55932
+inline const ::std::string& EncryptionDescriptor::key(1527,56054
+inline void EncryptionDescriptor::set_key(1530,56136
+inline void EncryptionDescriptor::set_key(1537,56314
+inline void EncryptionDescriptor::set_key(1544,56483
+inline ::std::string* EncryptionDescriptor::mutable_key(1551,56702
+inline bool EncryptionDescriptor::has_iv(1560,56888
+inline void EncryptionDescriptor::clear_iv(1563,56963
+inline const ::std::string& EncryptionDescriptor::iv(1569,57081
+inline void EncryptionDescriptor::set_iv(1572,57161
+inline void EncryptionDescriptor::set_iv(1579,57334
+inline void EncryptionDescriptor::set_iv(1586,57498
+inline ::std::string* EncryptionDescriptor::mutable_iv(1593,57712
+inline bool EncryptionDescriptor::has_is_password_based(1602,57924
+inline void EncryptionDescriptor::clear_is_password_based(1605,58014
+inline bool EncryptionDescriptor::is_password_based(1609,58125
+inline void EncryptionDescriptor::set_is_password_based(1612,58218
+inline bool EncryptionDescriptor::has_password_digest_algorithm(1618,58386
+inline void EncryptionDescriptor::clear_password_digest_algorithm(1621,58484
+inline const ::std::string& EncryptionDescriptor::password_digest_algorithm(1627,58694
+inline void EncryptionDescriptor::set_password_digest_algorithm(1630,58820
+inline void EncryptionDescriptor::set_password_digest_algorithm(1637,59108
+inline void EncryptionDescriptor::set_password_digest_algorithm(1644,59387
+inline ::std::string* EncryptionDescriptor::mutable_password_digest_algorithm(1651,59716
+inline bool EncryptionDescriptor::has_key_hash(1660,60018
+inline void EncryptionDescriptor::clear_key_hash(1663,60099
+inline const ::std::string& EncryptionDescriptor::key_hash(1669,60241
+inline void EncryptionDescriptor::set_key_hash(1672,60333
+inline void EncryptionDescriptor::set_key_hash(1679,60536
+inline void EncryptionDescriptor::set_key_hash(1686,60730
+inline ::std::string* EncryptionDescriptor::mutable_key_hash(1693,60974
+inline bool Config::has_machine_key_file(1706,61282
+inline void Config::clear_machine_key_file(1709,61357
+inline const ::std::string& Config::machine_key_file(1715,61517
+inline void Config::set_machine_key_file(1718,61611
+inline void Config::set_machine_key_file(1725,61840
+inline void Config::set_machine_key_file(1732,62060
+inline ::std::string* Config::mutable_machine_key_file(1739,62330
+inline bool Config::has_machine_key_encryption(1748,62608
+inline void Config::clear_machine_key_encryption(1751,62689
+inline const ::larpc::EncryptionDescriptor& Config::machine_key_encryption(1755,62865
+inline ::larpc::EncryptionDescriptor* Config::mutable_machine_key_encryption(1758,63067
+inline bool Config::has_local_principles_file(1765,63346
+inline void Config::clear_local_principles_file(1768,63426
+inline const ::std::string& Config::local_principles_file(1774,63606
+inline void Config::set_local_principles_file(1777,63710
+inline void Config::set_local_principles_file(1784,63964
+inline void Config::set_local_principles_file(1791,64209
+inline ::std::string* Config::mutable_local_principles_file(1798,64504
+inline bool Config::has_bind_ip(1807,64771
+inline void Config::clear_bind_ip(1810,64837
+inline const ::std::string& Config::bind_ip(1816,64961
+inline void Config::set_bind_ip(1819,65037
+inline void Config::set_bind_ip(1826,65221
+inline void Config::set_bind_ip(1833,65396
+inline ::std::string* Config::mutable_bind_ip(1840,65621
+inline bool Config::has_bind_port(1849,65819
+inline void Config::clear_bind_port(1852,65887
+inline ::google::protobuf::int32 Config::bind_port(1856,65964
+inline void Config::set_bind_port(1859,66048
+inline int ChannelMessage::requests_size(1869,66292
+inline void ChannelMessage::clear_requests(1872,66372
+ChannelMessage::requests(1876,66516
+ChannelMessage::mutable_requests(1880,66641
+inline const ::larpc::RPCRequest& ChannelMessage::requests(1883,66701
+inline ::larpc::RPCRequest* ChannelMessage::mutable_requests(1886,66812
+inline ::larpc::RPCRequest* ChannelMessage::add_requests(1889,66923
+inline int ChannelMessage::responses_size(1894,67059
+inline void ChannelMessage::clear_responses(1897,67141
+ChannelMessage::responses(1901,67288
+ChannelMessage::mutable_responses(1905,67416
+inline const ::larpc::RPCResponse& ChannelMessage::responses(1908,67478
+inline ::larpc::RPCResponse* ChannelMessage::mutable_responses(1911,67592
+inline ::larpc::RPCResponse* ChannelMessage::add_responses(1914,67706
+inline bool ChannelMessage::has_control(1919,67846
+inline void ChannelMessage::clear_control(1922,67920
+inline const ::larpc::ChannelControl& ChannelMessage::control(1926,68053
+inline ::larpc::ChannelControl* ChannelMessage::mutable_control(1929,68197
+inline bool ChannelSetup::has_machine_id(1940,68490
+inline void ChannelSetup::clear_machine_id(1943,68565
+inline const ::std::string& ChannelSetup::machine_id(1949,68707
+inline void ChannelSetup::set_machine_id(1952,68795
+inline void ChannelSetup::set_machine_id(1959,69000
+inline void ChannelSetup::set_machine_id(1966,69196
+inline ::std::string* ChannelSetup::mutable_machine_id(1973,69442
+inline int ChannelSetup::principles_size(1982,69683
+inline void ChannelSetup::clear_principles(1985,69765
+ChannelSetup::principles(1989,69920
+ChannelSetup::mutable_principles(1993,70056
+inline const ::larpc::PrincipleDescriptor& ChannelSetup::principles(1996,70118
+inline ::larpc::PrincipleDescriptor* ChannelSetup::mutable_principles(1999,70240
+inline ::larpc::PrincipleDescriptor* ChannelSetup::add_principles(2002,70362
+inline bool PrincipleVersionRecord::has_version(2011,70594
+inline void PrincipleVersionRecord::clear_version(2014,70676
+inline ::google::protobuf::uint32 PrincipleVersionRecord::version(2018,70766
+inline void PrincipleVersionRecord::set_version(2021,70863
+inline bool PrincipleVersionRecord::has_hash(2027,71014
+inline void PrincipleVersionRecord::clear_hash(2030,71093
+inline const ::std::string& PrincipleVersionRecord::hash(2036,71221
+inline void PrincipleVersionRecord::set_hash(2039,71307
+inline void PrincipleVersionRecord::set_hash(2046,71492
+inline void PrincipleVersionRecord::set_hash(2053,71668
+inline ::std::string* PrincipleVersionRecord::mutable_hash(2060,71894
+inline bool PrincipleDescriptor::has_display_name(2073,72193
+inline void PrincipleDescriptor::clear_display_name(2076,72277
+inline const ::std::string& PrincipleDescriptor::display_name(2082,72434
+inline void PrincipleDescriptor::set_display_name(2085,72533
+inline void PrincipleDescriptor::set_display_name(2092,72755
+inline void PrincipleDescriptor::set_display_name(2099,72968
+inline ::std::string* PrincipleDescriptor::mutable_display_name(2106,73231
+inline bool PrincipleDescriptor::has_public_key(2115,73469
+inline void PrincipleDescriptor::clear_public_key(2118,73551
+inline const ::std::string& PrincipleDescriptor::public_key(2124,73700
+inline void PrincipleDescriptor::set_public_key(2127,73795
+inline void PrincipleDescriptor::set_public_key(2134,74007
+inline void PrincipleDescriptor::set_public_key(2141,74210
+inline ::std::string* PrincipleDescriptor::mutable_public_key(2148,74463
+inline bool PrincipleDescriptor::has_version(2157,74688
+inline void PrincipleDescriptor::clear_version(2160,74767
+inline ::google::protobuf::uint32 PrincipleDescriptor::version(2164,74854
+inline void PrincipleDescriptor::set_version(2167,74948
+inline bool PrincipleDescriptor::has_trusting_x509_certificate(2173,75117
+inline void PrincipleDescriptor::clear_trusting_x509_certificate(2176,75214
+inline const ::std::string& PrincipleDescriptor::trusting_x509_certificate(2182,75423
+inline void PrincipleDescriptor::set_trusting_x509_certificate(2185,75548
+inline void PrincipleDescriptor::set_trusting_x509_certificate(2192,75835
+inline void PrincipleDescriptor::set_trusting_x509_certificate(2199,76113
+inline ::std::string* PrincipleDescriptor::mutable_trusting_x509_certificate(2206,76441
+inline bool PrincipleDescriptor::has_encrypted_private_key(2215,76755
+inline void PrincipleDescriptor::clear_encrypted_private_key(2218,76848
+inline const ::std::string& PrincipleDescriptor::encrypted_private_key(2224,77041
+inline void PrincipleDescriptor::set_encrypted_private_key(2227,77158
+inline void PrincipleDescriptor::set_encrypted_private_key(2234,77425
+inline void PrincipleDescriptor::set_encrypted_private_key(2241,77683
+inline ::std::string* PrincipleDescriptor::mutable_encrypted_private_key(2248,77991
+inline bool PrincipleDescriptor::has_private_key_encryption_descriptor(2257,78318
+inline void PrincipleDescriptor::clear_private_key_encryption_descriptor(2260,78423
+inline const ::larpc::EncryptionDescriptor& PrincipleDescriptor::private_key_encryption_descriptor(2264,78645
+inline ::larpc::EncryptionDescriptor* PrincipleDescriptor::mutable_private_key_encryption_descriptor(2267,78904
+inline int PrincipleDescriptor::past_versions_size(2274,79255
+inline void PrincipleDescriptor::clear_past_versions(2277,79350
+PrincipleDescriptor::past_versions(2281,79521
+PrincipleDescriptor::mutable_past_versions(2285,79673
+inline const ::larpc::PrincipleVersionRecord& PrincipleDescriptor::past_versions(2288,79748
+inline ::larpc::PrincipleVersionRecord* PrincipleDescriptor::mutable_past_versions(2291,79886
+inline ::larpc::PrincipleVersionRecord* PrincipleDescriptor::add_past_versions(2294,80024
+inline bool MethodDescriptor::has_method_name(2303,80270
+inline void MethodDescriptor::clear_method_name(2306,80350
+inline const ::std::string& MethodDescriptor::method_name(2312,80500
+inline void MethodDescriptor::set_method_name(2315,80594
+inline void MethodDescriptor::set_method_name(2322,80808
+inline void MethodDescriptor::set_method_name(2329,81013
+inline ::std::string* MethodDescriptor::mutable_method_name(2336,81268
+inline bool RPCRequest::has_channel_id(2349,81585
+inline void RPCRequest::clear_channel_id(2352,81658
+inline const ::std::string& RPCRequest::channel_id(2358,81798
+inline void RPCRequest::set_channel_id(2361,81884
+inline void RPCRequest::set_channel_id(2368,82087
+inline void RPCRequest::set_channel_id(2375,82281
+inline ::std::string* RPCRequest::mutable_channel_id(2382,82525
+inline bool RPCRequest::has_request_id(2391,82744
+inline void RPCRequest::clear_request_id(2394,82817
+inline ::google::protobuf::uint32 RPCRequest::request_id(2398,82901
+inline void RPCRequest::set_request_id(2401,82992
+inline bool RPCRequest::has_method_id(2407,83159
+inline void RPCRequest::clear_method_id(2410,83231
+inline const ::larpc::MethodDescriptor& RPCRequest::method_id(2414,83368
+inline ::larpc::MethodDescriptor* RPCRequest::mutable_method_id(2417,83518
+inline bool RPCRequest::has_method_parameters(2424,83736
+inline void RPCRequest::clear_method_parameters(2427,83816
+inline const ::std::string& RPCRequest::method_parameters(2433,83984
+inline void RPCRequest::set_method_parameters(2436,84084
+inline void RPCRequest::set_method_parameters(2443,84322
+inline void RPCRequest::set_method_parameters(2450,84551
+inline ::std::string* RPCRequest::mutable_method_parameters(2457,84830
+inline bool RPCResponse::has_channel_id(2470,85172
+inline void RPCResponse::clear_channel_id(2473,85246
+inline const ::std::string& RPCResponse::channel_id(2479,85387
+inline void RPCResponse::set_channel_id(2482,85474
+inline void RPCResponse::set_channel_id(2489,85678
+inline void RPCResponse::set_channel_id(2496,85873
+inline ::std::string* RPCResponse::mutable_channel_id(2503,86118
+inline bool RPCResponse::has_request_id(2512,86338
+inline void RPCResponse::clear_request_id(2515,86412
+inline ::google::protobuf::uint32 RPCResponse::request_id(2519,86497
+inline void RPCResponse::set_request_id(2522,86589
+inline bool RPCResponse::has_response(2528,86738
+inline void RPCResponse::clear_response(2531,86810
+inline const ::std::string& RPCResponse::response(2537,86943
+inline void RPCResponse::set_response(2540,87026
+inline void RPCResponse::set_response(2547,87220
+inline void RPCResponse::set_response(2554,87405
+inline ::std::string* RPCResponse::mutable_response(2561,87640
+inline bool OpenChannelRequest::has_initiator_public_key(2574,87954
+inline void OpenChannelRequest::clear_initiator_public_key(2577,88045
+inline const ::std::string& OpenChannelRequest::initiator_public_key(2583,88233
+inline void OpenChannelRequest::set_initiator_public_key(2586,88347
+inline void OpenChannelRequest::set_initiator_public_key(2593,88608
+inline void OpenChannelRequest::set_initiator_public_key(2600,88860
+inline ::std::string* OpenChannelRequest::mutable_initiator_public_key(2607,89162
+inline bool OpenChannelRequest::has_initiator_certificate(2616,89449
+inline void OpenChannelRequest::clear_initiator_certificate(2619,89541
+inline const ::std::string& OpenChannelRequest::initiator_certificate(2625,89733
+inline void OpenChannelRequest::set_initiator_certificate(2628,89849
+inline void OpenChannelRequest::set_initiator_certificate(2635,90115
+inline void OpenChannelRequest::set_initiator_certificate(2642,90372
+inline ::std::string* OpenChannelRequest::mutable_initiator_certificate(2649,90679
+inline bool OpenChannelRequest::has_desired_principle(2658,90988
+inline void OpenChannelRequest::clear_desired_principle(2661,91076
+inline const ::larpc::PrincipleDescriptor& OpenChannelRequest::desired_principle(2665,91248
+inline ::larpc::PrincipleDescriptor* OpenChannelRequest::mutable_desired_principle(2668,91441
+inline bool OpenChannelRequest::has_channel_id(2675,91699
+inline void OpenChannelRequest::clear_channel_id(2678,91780
+inline const ::std::string& OpenChannelRequest::channel_id(2684,91928
+inline void OpenChannelRequest::set_channel_id(2687,92022
+inline void OpenChannelRequest::set_channel_id(2694,92233
+inline void OpenChannelRequest::set_channel_id(2701,92435
+inline ::std::string* OpenChannelRequest::mutable_channel_id(2708,92687
+inline bool OpenChannelResponse::has_initiator_channel_id(2721,93020
+inline void OpenChannelResponse::clear_initiator_channel_id(2724,93112
+inline const ::std::string& OpenChannelResponse::initiator_channel_id(2730,93301
+inline void OpenChannelResponse::set_initiator_channel_id(2733,93416
+inline void OpenChannelResponse::set_initiator_channel_id(2740,93678
+inline void OpenChannelResponse::set_initiator_channel_id(2747,93931
+inline ::std::string* OpenChannelResponse::mutable_initiator_channel_id(2754,94234
+inline bool OpenChannelResponse::has_responding_channel_id(2763,94523
+inline void OpenChannelResponse::clear_responding_channel_id(2766,94616
+inline const ::std::string& OpenChannelResponse::responding_channel_id(2772,94809
+inline void OpenChannelResponse::set_responding_channel_id(2775,94926
+inline void OpenChannelResponse::set_responding_channel_id(2782,95193
+inline void OpenChannelResponse::set_responding_channel_id(2789,95451
+inline ::std::string* OpenChannelResponse::mutable_responding_channel_id(2796,95759
+inline bool OpenChannelResponse::has_responding_certificate(2805,96053
+inline void OpenChannelResponse::clear_responding_certificate(2808,96147
+inline const ::std::string& OpenChannelResponse::responding_certificate(2814,96344
+inline void OpenChannelResponse::set_responding_certificate(2817,96463
+inline void OpenChannelResponse::set_responding_certificate(2824,96735
+inline void OpenChannelResponse::set_responding_certificate(2831,96998
+inline ::std::string* OpenChannelResponse::mutable_responding_certificate(2838,97311
+inline int ChannelControl::open_channel_request_size(2851,97719
+inline void ChannelControl::clear_open_channel_request(2854,97823
+ChannelControl::open_channel_request(2858,97999
+ChannelControl::mutable_open_channel_request(2862,98156
+inline const ::larpc::OpenChannelRequest& ChannelControl::open_channel_request(2865,98240
+inline ::larpc::OpenChannelRequest* ChannelControl::mutable_open_channel_request(2868,98383
+inline ::larpc::OpenChannelRequest* ChannelControl::add_open_channel_request(2871,98526
+inline int ChannelControl::open_channel_response_size(2876,98714
+inline void ChannelControl::clear_open_channel_response(2879,98820
+ChannelControl::open_channel_response(2883,98999
+ChannelControl::mutable_open_channel_response(2887,99159
+inline const ::larpc::OpenChannelResponse& ChannelControl::open_channel_response(2890,99245
+inline ::larpc::OpenChannelResponse* ChannelControl::mutable_open_channel_response(2893,99391
+inline ::larpc::OpenChannelResponse* ChannelControl::add_open_channel_response(2896,99537
+inline int ChannelControl::close_channel_id_size(2901,99703
+inline void ChannelControl::clear_close_channel_id(2904,99799
+ChannelControl::close_channel_id(2908,99952
+ChannelControl::mutable_close_channel_id(2912,100086
+inline const ::std::string& ChannelControl::close_channel_id(2915,100162
+inline ::std::string* ChannelControl::mutable_close_channel_id(2918,100283
+inline void ChannelControl::set_close_channel_id(2921,100404
+inline void ChannelControl::set_close_channel_id(2924,100547
+inline void ChannelControl::set_close_channel_id(2927,100681
+inline ::std::string* ChannelControl::add_close_channel_id(2931,100870
+inline void ChannelControl::add_close_channel_id(2934,100969
+inline void ChannelControl::add_close_channel_id(2937,101092
+inline void ChannelControl::add_close_channel_id(2940,101206
+namespace google 2948,101408
+namespace protobuf google::protobuf2949,101427
+
+mdb.cc,274
+namespace larpc 10,148
+MachineDatabase::MachineDatabase(larpc::MachineDatabase::MachineDatabase12,167
+MachineDatabase::~MachineDatabase(larpc::MachineDatabase::~MachineDatabase14,206
+uint32_t MachineDatabase::GenerateNonce(larpc::MachineDatabase::GenerateNonce16,246
+
+mdb.h,51
+#define _MDB_H8,117
+class MachineDatabase 21,302
+
+multiplexer.cc,912
+namespace larpc 19,422
+uint64_t GetCPUId(larpc::GetCPUId33,823
+typedef boost::function2<bool,bool47,1100
+typedef boost::function2<bool, const error_code&, ::std::size_t> completion_function;47,1100
+typedef boost::function2<void,void48,1186
+typedef boost::function2<void, const error_code&, ::std::size_t> handler_function;48,1186
+Multiplexer::Multiplexer(50,1270
+void Multiplexer::SendChannelSetup(61,1796
+void Multiplexer::SendMessage(82,2455
+void Multiplexer::StartReceiveLoop(88,2693
+void Multiplexer::MessageLengthReceived(99,3017
+void Multiplexer::MessageReceived(118,3735
+void Multiplexer::ProcessOneMessage(133,4124
+void Multiplexer::HandleErrorCondition(142,4388
+string Multiplexer::Describe(148,4532
+void Multiplexer::Shutdown(162,4842
+void Multiplexer::AsyncShutdown(170,4994
+void Multiplexer::AsyncShutdownOnce(183,5187
+    typedef std::pair<const string,Channel*> iter;188,5304
+
+multiplexer.h,267
+#define _MULTIPLEXER_H8,136
+struct hash_channel 38,773
+  int operator()(hash_channel::operator()39,795
+struct eq_channel 45,911
+  bool operator()(eq_channel::operator()46,931
+class Multiplexer 51,1050
+  inline bool IsShutdown(Multiplexer::IsShutdown61,1297
+
+principle.cc,551
+namespace larpc 11,173
+Principle* Principle::FromDescriptor(larpc::Principle::FromDescriptor13,192
+Principle::Principle(35,850
+Principle::Principle(40,1034
+const ACL* Principle::GetAcl(55,1499
+string Principle::GetName(59,1556
+X509* Principle::GetCert(63,1611
+unsigned int Principle::GetId(67,1665
+void Principle::SetAcl(71,1722
+bool Principle::DecryptPrivateKey(75,1774
+bool Principle::HasPrivateKey(79,1831
+void Principle::SetId(83,1905
+void Principle::MergePublicData(87,1961
+bool Principle::operator <(Principle::operator <94,2216
+
+principle.h,213
+#define _PRINCIPLE_H8,137
+class Principle 26,521
+struct eq_principle 73,1780
+  bool operator()(eq_principle::operator()74,1802
+struct lt_principle 82,2041
+  bool operator()(lt_principle::operator()83,2063
+
+stub.h,41
+#define _STUB_H8,108
+class Stub 14,160
+
+util.cc,143
+namespace larpc Stub::larpc11,169
+namespace util larpc::util13,188
+string BoostEndpointToString(larpc::util::BoostEndpointToString15,206
+
+util.h,65
+#define _UTIL_H8,121
+#define DISALLOW_EVIL_CONSTRUCTORS(14,205
