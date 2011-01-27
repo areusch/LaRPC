@@ -2,13 +2,13 @@ import os
 import re
 
 test_dir = 'test'
-larpc_test_libs = ['boost_system-mt', 'gflags', 'glog', 'gmock', 'gtest', 'protobuf']
+larpc_test_libs = ['boost_system-mt', 'boost_thread-mt', 'gflags', 'glog', 'gmock', 'gtest', 'protobuf']
 
 def TestTool(target, source, env, **kwargs):
     global lib_larpc, test_dir, test_util, test_protobuf_cc
     test_name = os.path.splitext(source[0].name)[0]
     test_binary = test_dir + os.path.sep + test_name + '_runner'
-    prog = env.Program(test_binary, [source[0], test_dir + os.path.sep + 'framework_main.cc', 'proto/test_config.pb.o'], LIBS=larpc_test_libs + lib_larpc)
+    prog = env.Program(test_binary, [source[0], 'proto/test_config.pb.o'] + [test_dir + os.path.sep + x for x in ['framework_main.cc', 'network_pipe.cc']], LIBS=larpc_test_libs + lib_larpc)
 
     test_config_filename = test_binary + ".cfg"
     test_gen_commands = re.search(r'^/\*\* TestConfig: ([^*]*)\*/$', source[0].get_contents(), flags=re.MULTILINE)

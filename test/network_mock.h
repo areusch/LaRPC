@@ -4,6 +4,9 @@
  *
  */
 
+#ifndef _TEST_NETWORK_H
+#define _TEST_NETWORK_H
+
 #include "network.h"
 #include <boost/asio.hpp>
 
@@ -38,3 +41,5 @@ class MockNetwork : public Network {
 
 } // namespace test
 } // namespace larpc
+
+#endif // _TEST_NETWORK_H

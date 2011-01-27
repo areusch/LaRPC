@@ -12,5 +12,5 @@ class ConnectTest : public larpc::test::NWayTest<2>
 {};
 
 TEST_F(ConnectTest, InstancesStartOK) {
-  LOG(INFO) << "well i guess it's okay...";
+  
 }

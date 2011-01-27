@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <memory>
+#include <set>
 #include <boost/bind.hpp>
 #include <gflags/gflags.h>
 #include <gmock/gmock.h>
@@ -43,6 +44,7 @@ using ::google::protobuf::io::FileInputStream;
 using ::std::auto_ptr;
 using ::std::endl;
 using ::std::cerr;
+using ::std::set;
 
 class KeyGeneratorFunctor {
  public:
@@ -83,7 +85,9 @@ class NWayTest : public testing::Test {
       close(config_fd);
   }
 
-  NWayTest(int base_port, const TestConfig& config) : base_port_(base_port) {}
+  NWayTest(int base_port, const TestConfig& config) : base_port_(base_port) {
+    config_.MergeFrom(config);
+  }
 
   virtual ~NWayTest() {}
   
@@ -95,6 +99,20 @@ class NWayTest : public testing::Test {
       key_generators[i].reset(new MockKeyGenerator());
       network[i].reset(new MockNetwork());
       factory[i].reset(new LaRPCFactory(network[i].get(), *(endpoints[i]), bind(&KeyGeneratorFunctor::Generate, key_generators[n].get())));
+
+      set<Principle*> principles;
+      for (int j = 0; j < config_.nodes(i).principles_size(); ++j) {
+        Principle* p = Principle::FromDescriptor(factory[i].get(),
+                                                 config_.nodes(i).principles(j));
+        if (p)
+          principles.insert(p);
+        else
+          LOG(ERROR) << "Error loading principle " << j << " for node " << i;
+      }
+      
+      CHECK(principles.size() > 0) << "Node " << i
+                                   << " has no principles! Aborting test!";
+      factory[i]->ReplacePrinciples(&principles);
     }
   }
 
