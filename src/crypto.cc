@@ -13,13 +13,16 @@
 #include <openssl/pem.h>
 #include <openssl/x509.h>
 #include "constants.h"
+#include "crypto_lock.h"
 #include "key.h"
 
 namespace larpc {
 
 CryptoInterface::CryptoInterface(uint64_t last_generated_serial,
                                  secure_time_fn time_fn) : 
-    time_fn_(time_fn), last_generated_serial_(last_generated_serial) {}
+    time_fn_(time_fn), last_generated_serial_(last_generated_serial) {
+  crypto_init_locking_services();
+}
 
 bool CryptoInterface::GenerateKey(const KeygenParameters& params, EVP_PKEY** out_key) {
   EVP_PKEY_CTX* ctx;
