@@ -119,7 +119,7 @@ bool LaRPCFactory::MergeConfig(const Config& config) {
       machine_key_ = new_machine_key;
     }
 
-    ReplacePrinciples();
+    ReplacePrinciples(NULL);
   }
   
   return true;
@@ -246,15 +246,21 @@ bool LaRPCFactory::LoadPrinciplesFromConfig(const Config& config,
   return (new_principles->size() > 0);
 }
 
-void LaRPCFactory::ReplacePrinciples() {
+void LaRPCFactory::ReplacePrinciples(set<Principle*>* principles) {
   // ASSERT locked?
 
-  set<Principle*> new_principles;
+  auto_ptr<set<Principle*> > config_principles;
+
+  if (!principles) {
+    config_principles.reset(new set<Principle*>);
   
-  if (!LoadPrinciplesFromConfig(config_, &new_principles)) {
-    LOG(FATAL) << "Loaded a configuration that contained an unloadable "
-               << "principles file.";
-    return;
+    if (!LoadPrinciplesFromConfig(config_, config_principles.get())) {
+      LOG(FATAL) << "Loaded a configuration that contained an unloadable "
+                 << "principles file.";
+      return;
+    }
+
+    principles = config_principles.get();
   }
 
   // Remove all local principles not present in the new configuration.
@@ -262,15 +268,15 @@ void LaRPCFactory::ReplacePrinciples() {
   for (hash_map<int,Principle*>::iterator it = principles_.begin();
        it != principles_.end();
        ) {
-    set<Principle*>::iterator new_it = new_principles.find((*it).second);
-    if (new_it == new_principles.end() && (*it).second->HasPrivateKey()) {
+    set<Principle*>::iterator new_it = principles->find((*it).second);
+    if (new_it == principles->end() && (*it).second->HasPrivateKey()) {
       RemovePrinciple((*(it++)).second);
     }
   }
 
   // Call HandleNewPrinciple() for any new principles loaded.
-  for (set<Principle*>::iterator it = new_principles.begin();
-       it != new_principles.end();
+  for (set<Principle*>::iterator it = principles->begin();
+       it != principles->end();
        it++) {
     if (principles_.find((*it)->GetId()) == principles_.end()) {
       // New principle loaded      

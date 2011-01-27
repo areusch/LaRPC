@@ -35,7 +35,7 @@ struct hash<EVP_PKEY*> {
       << "Cannot compute hashed pubkey size for " << pubkey;
 
     unsigned char pubkey_hash[pubkey_size + 1];
-    CHECK(i2d_PublicKey(pubkey, (unsigned char**) &pubkey_hash) == 1)
+    CHECK(i2d_PublicKey(pubkey, (unsigned char**) &pubkey_hash) == pubkey_size)
       << "Cannot hash public key " << pubkey;
     pubkey_hash[pubkey_size] = '\0';
 
@@ -130,6 +130,15 @@ class LaRPCFactory {
    * principle has an id of id.
    */
   Principle* GetPrinciple(id_t id);
+
+  // Ensures that a principle object is present for each principle listed
+  // in the LaRPC configuration. Closes any channels whose local client no
+  // longer exists.
+  // Expects state_lock_ to be locked.
+  // 
+  // principles may be NULL, in which case principles will be read from the
+  // file given in the configuration.
+  void ReplacePrinciples(set<Principle*>* principles);
   
   /** Calls machine_key_gen to generate a new machine key and stores it
    * in the file named by new_keyfile. Returns true on success and false on
@@ -167,12 +176,6 @@ class LaRPCFactory {
 
   bool LoadPrinciplesFromConfig(const Config& config, 
                                 set<Principle*>* out_principles);
-
-  // Ensures that a principle object is present for each principle listed
-  // in the LaRPC configuration. Closes any channels whose local client no
-  // longer exists.
-  // Expects state_lock_ to be locked.
-  void ReplacePrinciples();
   
   // Removes a principle and closes any open channels associated with it.
   // Expects a reference to a principle that exists inside of principles_.

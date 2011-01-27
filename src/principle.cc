@@ -18,7 +18,7 @@ Principle* Principle::FromDescriptor(LaRPCFactory* factory,
   if (!descriptor.IsInitialized())
     return NULL;
 
-  EVP_PKEY* public_key;
+  EVP_PKEY* public_key = EVP_PKEY_new();
   if (!CryptoInterface::PublicKeyFromPKCS8String(descriptor.public_key(), 
                                                  &public_key)) {
     LOG(ERROR) << "Cannot deserialize principle public key!";
