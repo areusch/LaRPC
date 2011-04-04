@@ -26,7 +26,7 @@ using ::std::auto_ptr;
 using ::std::make_pair;
 using ::std::pair;
 
-PipeSubnet::PipeSubnet(address& network, unsigned int mask) : 
+PipeSubnet::PipeSubnet(address& network, unsigned int mask) :
     ::boost::thread(bind(&PipeSubnet::Runner, this)), network_(network), mask_(mask) {}
 
 PipeSubnet::~PipeSubnet() {
@@ -67,7 +67,7 @@ void PipeSubnet::RemoveNode(address& address) {
 
 PipeNetwork* PipeSubnet::operator[](address& address) {
   scoped_lock<mutex> lock(nodes_guard_);
-  
+
   NodeMap::iterator it = nodes_.find(address);
   if (it == nodes_.end())
     return NULL;
@@ -79,7 +79,7 @@ void PipeSubnet::RunInThread(function0<void> func) {
     scoped_lock<mutex> lock(op_lock_);
     ops_.push_back(func);
   }
-  
+
   op_cond_.notify_one();
 }
 
@@ -87,10 +87,10 @@ void PipeSubnet::Shutdown() {
   scoped_lock<mutex> lock(op_lock_);
   shutdown_ = true;
   op_cond_.notify_one();
-}   
+}
 
 void PipeSubnet::Runner() {
-  while (!shutdown_) { 
+  while (!shutdown_) {
     function0<void> func;
     {
       unique_lock<mutex> lock(op_lock_);
@@ -105,8 +105,8 @@ void PipeSubnet::Runner() {
   }
 }
 
-PipeNetwork::PipeNetwork(PipeSubnet* subnet, address& address) : 
-    local_address_(address), subnet_(subnet), shutdown_(false), 
+PipeNetwork::PipeNetwork(PipeSubnet* subnet, address& address) :
+    local_address_(address), subnet_(subnet), shutdown_(false),
     last_used_port_(65535) {}
 
 PipeNetwork::~PipeNetwork() {
@@ -119,12 +119,12 @@ ServerSocket* PipeNetwork::Listen(const tcp::endpoint& ep) {
   tcp::endpoint real_ep = ep;
   if (ep.address() == address(address_v4(0)))
     real_ep = tcp::endpoint(local_address_, ep.port());
-  
+
   auto_ptr<PipeServerSocket> new_socket(new PipeServerSocket(real_ep, this));
 
-  pair<ServerSocketsMap::iterator,bool> it = 
+  pair<ServerSocketsMap::iterator,bool> it =
     servers_.insert(make_pair(real_ep.port(), new_socket.get()));
-  
+
   if (!it.second)
     return NULL;
 
@@ -155,14 +155,14 @@ int PipeNetwork::FindFreeLocalPort() {
 
 Socket* PipeNetwork::Connect(const tcp::endpoint& ep, ConnectCallback cb) {
   scoped_lock<mutex> lock(sockets_guard_);
-  
+
   int local_port = FindFreeLocalPort();
   if (local_port == -1)
     return NULL;
 
   tcp::endpoint local_ep(local_address_, last_used_port_);
   auto_ptr<PipeSocket> new_socket(new PipeSocket(this, local_ep));
-  
+
   sockets_.insert(make_pair(last_used_port_, new_socket.get()));
 
   subnet_->RunInThread(bind(&PipeSocket::BindAndConnect,
@@ -170,7 +170,7 @@ Socket* PipeNetwork::Connect(const tcp::endpoint& ep, ConnectCallback cb) {
                             ep,
                             subnet_,
                             cb));
-  
+
   return new_socket.release();
 }
 
@@ -181,7 +181,7 @@ void PipeNetwork::Shutdown() {
   SocketsMap shadow_map(sockets_.begin(), sockets_.end());
   ServerSocketsMap server_shadow_map(servers_.begin(), servers_.end());
   sockets_guard_.unlock();
-  
+
   typedef pair<unsigned int, PipeSocket*> ShadowMapEntry;
   BOOST_FOREACH(ShadowMapEntry p, shadow_map) {
     p.second->ShutdownBoth();
@@ -207,8 +207,8 @@ PipeSocket::PipeSocket(PipeNetwork* network, const tcp::endpoint& local_ep) :
     shutdown_(false), local_network_(network), remote_(NULL), local_ep_(local_ep),
     out_(&buffer_), in_(&buffer_) {}
 
-PipeSocket::PipeSocket(PipeNetwork* network, 
-                       const tcp::endpoint& local_ep, 
+PipeSocket::PipeSocket(PipeNetwork* network,
+                       const tcp::endpoint& local_ep,
                        PipeSocket* other) :
     shutdown_(false), local_network_(network), remote_(other), local_ep_(local_ep),
     out_(&buffer_), in_(&buffer_) {}
@@ -231,7 +231,7 @@ void PipeSocket::WriteToBuffer(::boost::asio::const_buffers_1 b, TransferCallbac
       bytes_transferred += buffer_size(*it);
     }
     cb(error_code(::boost::system::errc::success,
-                  ::boost::system::system_category), 
+                  ::boost::system::system_category),
        bytes_transferred);
   } else {
     cb(error_code(::boost::system::errc::connection_reset,
@@ -243,7 +243,7 @@ void PipeSocket::WriteToBuffer(::boost::asio::const_buffers_1 b, TransferCallbac
 void PipeSocket::ShutdownBoth() {
   if (shutdown_)
     return;
-  
+
   if (remote_)
     remote_->ShutdownBoth();
 
@@ -273,7 +273,7 @@ void PipeSocket::BindAndConnect(tcp::endpoint target, PipeSubnet* subnet, Connec
   server->Submit(this, cb);
 }
 
-void PipeSocket::Write(::boost::asio::const_buffers_1 b, TransferCallback cb) {
+void PipeSocket::Write(::boost::asio::const_buffer b, TransferCallback cb) {
   if (!remote_) {
     cb(error_code(::boost::system::errc::bad_file_descriptor,
                   ::boost::system::system_category),
@@ -283,14 +283,14 @@ void PipeSocket::Write(::boost::asio::const_buffers_1 b, TransferCallback cb) {
 
   local_network_->subnet_->RunInThread(bind(&PipeSocket::WriteToBuffer,
                                             remote_,
-                                            b,
+                                            buffer(b),
                                             cb));
 }
 
-void PipeSocket::Read(::boost::asio::mutable_buffers_1 b, TransferCallback cb) {
+void PipeSocket::Read(::boost::asio::mutable_buffer b, TransferCallback cb) {
   local_network_->subnet_->RunInThread(bind(&PipeSocket::ReadBuffer,
                                             this,
-                                            b,
+                                            buffer(b),
                                             cb));
 }
 
@@ -318,8 +318,8 @@ void PipeSocket::ReadBuffer(::boost::asio::mutable_buffers_1 b, TransferCallback
 
     bytes_transferred += in_.gcount();
   }
-  
-  cb(error_code(::boost::system::errc::success, 
+
+  cb(error_code(::boost::system::errc::success,
                 ::boost::system::system_category),
      bytes_transferred);
 }
@@ -335,7 +335,7 @@ tcp::endpoint PipeSocket::GetLocalEndpoint() {
 tcp::endpoint PipeSocket::GetRemoteEndpoint() {
   if (remote_)
     return remote_->local_ep_;
-  
+
   return tcp::endpoint(address(address_v4(0)), 0);
 }
 
@@ -348,7 +348,7 @@ PipeServerSocket::~PipeServerSocket() {
 
 void PipeServerSocket::Accept(AcceptCallback cb) {
   scoped_lock<mutex> lock(queue_guard_);
-  
+
   if (!accept_queue_.empty()) {
     pair<PipeSocket*, ConnectCallback> next = accept_queue_.front();
     accept_queue_.pop();
@@ -380,7 +380,7 @@ void PipeServerSocket::Close() {
   while (!accept_queue_.empty()) {
     pair<PipeSocket*, ConnectCallback> it = accept_queue_.front();
     accept_queue_.pop();
-    it.second(it.first, error_code(::boost::system::errc::connection_reset, 
+    it.second(it.first, error_code(::boost::system::errc::connection_reset,
                                    ::boost::system::system_category));
   }
 
@@ -391,10 +391,10 @@ void PipeServerSocket::Close() {
                         ::boost::system::system_category));
   }
 }
-  
+
 void PipeServerSocket::Submit(PipeSocket* sock, ConnectCallback cb) {
   scoped_lock<mutex> lock(queue_guard_);
-  
+
   if (!cb_queue_.empty()) {
     AcceptCallback accept_cb = cb_queue_.front();
     cb_queue_.pop();
@@ -408,8 +408,8 @@ void PipeServerSocket::Submit(PipeSocket* sock, ConnectCallback cb) {
   }
 }
 
-void PipeServerSocket::DoAccept(PipeSocket* remote, 
-                                ConnectCallback remote_cb, 
+void PipeServerSocket::DoAccept(PipeSocket* remote,
+                                ConnectCallback remote_cb,
                                 AcceptCallback cb) {
   scoped_lock<mutex> lock(network_->sockets_guard_);
 
@@ -424,19 +424,19 @@ void PipeServerSocket::DoAccept(PipeSocket* remote,
     return;
   }
 
-  auto_ptr<PipeSocket> local(new PipeSocket(network_, 
+  auto_ptr<PipeSocket> local(new PipeSocket(network_,
                                             tcp::endpoint(network_->local_address_, local_port),
                                             remote));
-  
+
   network_->sockets_[local_port] = local.release();
-  
+
   remote_cb(remote, error_code(::boost::system::errc::success,
                                ::boost::system::system_category));
   cb(network_->sockets_[local_port], error_code(::boost::system::errc::success,
                                                 ::boost::system::system_category));
 }
-  
+
 
 } // namespace test
 } // namespace larpc
-  
+

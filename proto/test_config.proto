@@ -12,6 +12,6 @@ message NodeConfig {
         // Machine key of this node
         required string machine_key = 1;
         required string machine_private_key = 2;
-        
-        repeated PrincipleDescriptor principles = 3;
+
+        repeated proto.PrincipleDescriptor principles = 3;
 }

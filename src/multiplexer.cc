@@ -51,28 +51,29 @@ bool eq_channel_ptr::operator()(Channel* const a, Channel* const b) const {
 typedef boost::function2<bool, const error_code&, ::std::size_t> completion_function;
 typedef boost::function2<void, const error_code&, ::std::size_t> handler_function;
 
-Multiplexer::Multiplexer(Socket* socket) : 
+Multiplexer::Multiplexer(Socket* socket) :
     disallow_new_channels_(false),
     socket_(socket),
     ostream_(::boost::bind(&Socket::Write, socket_, _1, _2)),
     is_shut_down_(false), is_shutting_down_(false) {}
 
 void Multiplexer::SendChannelSetup() {
-  ChannelSetup msg;
-    
-  {
+  proto::ChannelSetup msg;
+
+  if (factory_->GetConfig().advertise_principles()) {
     scoped_lock<mutex> lock_(factory_->state_lock_);
-    BOOST_FOREACH( const Principle* principle,  factory_->local_principles_) {
-      principle->MergePublicData(msg.add_principles());
+
+    typedef pair<Principle::id_t, const Principle*> PDBIterator;
+    BOOST_FOREACH(PDBIterator principle, (*(const PrincipleDatabase*) factory_->pdb_.get())) {
+      if (principle.second->HasPrivateKey())
+        principle.second->MergePublicData(msg.add_principles());
     }
   }
 
-  char stringified_machine_id[16];
-  int machine_id_length = snprintf(stringified_machine_id,
-                                   sizeof(stringified_machine_id),
-                                   "%16LX",
-                                   GetCPUId());
-  msg.set_machine_id(string(stringified_machine_id, machine_id_length));
+  CHECK(!factory_->crypto_.PublicKeyToPKCS8String(
+          factory_->machine_key_,
+          msg.mutable_machine_public_key()))
+    << "Unexpectedly cannot serialize machine public key :(";
 
   SendMessage(msg.SerializeAsString());
   StartReceiveLoop();
@@ -128,7 +129,7 @@ void Multiplexer::MessageReceived(int* message_length,
 }
 
 void Multiplexer::ProcessOneMessage(const string& message) {
-  ChannelMessage msg;
+  proto::MultiplexerMessage msg;
   if (!msg.ParseFromString(message)) {
     LOG(ERROR) << "Cannot parse multiplexer message on " << Describe()
                << "; closing connection!";
@@ -149,10 +150,10 @@ string Multiplexer::Describe() {
   else
     status = "Closed";
 
-  return status + 
-    " multiplexer to " + 
-    util::BoostEndpointToString(socket_->GetRemoteEndpoint()) + 
-    " bound on " + 
+  return status +
+    " multiplexer to " +
+    util::BoostEndpointToString(socket_->GetRemoteEndpoint()) +
+    " bound on " +
     util::BoostEndpointToString(socket_->GetLocalEndpoint());
 }
 
@@ -167,7 +168,7 @@ void Multiplexer::Shutdown() {
 void Multiplexer::AsyncShutdown() {
   {
     scoped_lock<mutex> lock(shutdown_lock_);
-    
+
     if (is_shutting_down_)
       return;
 
@@ -181,7 +182,7 @@ void Multiplexer::AsyncShutdownOnce() {
   {
     scoped_lock<mutex> lock(channel_lock_);
 
-    ChannelControl control;
+    proto::ChannelControl control;
     typedef std::pair<const string,Channel*> iter;
     BOOST_FOREACH(iter ch, channels_) {
       ch.second->Shutdown(false);
@@ -189,7 +190,7 @@ void Multiplexer::AsyncShutdownOnce() {
     }
 
     SendMessage(control.SerializeAsString());
-    
+
     // TODO(andrew): How do we delete channels?
 
     is_shut_down_ = true;

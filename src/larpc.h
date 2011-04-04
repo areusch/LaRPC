@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <map>
+#include <memory>
 #include <string>
 #include <set>
 #include <boost/asio.hpp>
@@ -23,40 +24,17 @@
 #include "key.h"
 #include "multiplexer.h"
 #include "network.h"
+#include "pdb.h"
 #include "principle.h"
 
-HASHTABLE_NAMESPACE_START
-
-template <>
-struct hash<EVP_PKEY*> {
-  int operator()(EVP_PKEY* const pubkey) const {
-    int pubkey_size = i2d_PublicKey(pubkey, NULL);
-    CHECK(pubkey_size > 0)
-      << "Cannot compute hashed pubkey size for " << pubkey;
-
-    unsigned char pubkey_hash[pubkey_size + 1];
-    CHECK(i2d_PublicKey(pubkey, (unsigned char**) &pubkey_hash) == pubkey_size)
-      << "Cannot hash public key " << pubkey;
-    pubkey_hash[pubkey_size] = '\0';
-
-    return hash<const char*>()((const char*) pubkey_hash);
-  }
-};
-
-HASHTABLE_NAMESPACE_END
 
 namespace larpc {
-
-struct eq_evp_pkey {
-  bool operator()(EVP_PKEY* const a, EVP_PKEY* const b) const {
-    return EVP_PKEY_cmp(a, b) == 1;
-  }
-};
 
 using ::boost::asio::ip::tcp;
 using ::boost::asio::io_service;
 using ::boost::function0;
 using ::boost::mutex;
+using ::std::auto_ptr;
 using ::std::istream;
 using ::std::multimap;
 using ::std::ostream;
@@ -68,9 +46,6 @@ class LaRPCFactory {
  private:
   typedef multimap<const Principle*,Channel*> PrincipleChannelMap;
  public:
-  typedef unsigned int id_t;
-  typedef hash_map<EVP_PKEY*, int, hash<EVP_PKEY*>, eq_evp_pkey> PrincipleIdMap;
-
   static LaRPCFactory* FromConfigFile(const string& filename,
                                       Network* net,
                                       key_generator_func machine_key_gen);
@@ -89,14 +64,14 @@ class LaRPCFactory {
    * consumed from config to process as Config data structure.
    */
   bool ReadConfigFromStream(istream* config);
-  
+
   /** Merge configuration data from the given Config protocol buffer.
    */
-  bool MergeConfig(const Config& config);
+  bool MergeConfig(const proto::Config& config);
 
   /** Returns a read-only copy of this node's configuration.
    */
-  const Config& GetConfig();
+  const proto::Config& GetConfig();
 
   /** Write this node's configuration to the given ostream.
    */
@@ -112,34 +87,29 @@ class LaRPCFactory {
    */
   Multiplexer* NewMultiplexer(Socket* s);
 
-  /** Evaluate the public key contained in p and decides if an existing known
-   * principle contains a matching public key. Returns a pair containing the
-   * existing principle and its internal id (used for quicker identification),
-   * or pair(NULL, 0) if no existing principle matched p.
-   */
-  std::pair<Principle*,id_t> GetPrinciple(Principle* p);
+  // --------------------------[ Principle Methods ]----------------------------
+  //
+  // These functions deal with access to principles. Do not call these functions
+  // outside the event loop; locking is not provided.
 
-  /** Evaluate p and decides if an existing known principle contains a
-   * matching public key. Returns a pair containing the existing
-   * principle and its internal id (used for quicker identification),
-   * or pair(NULL, 0) if no existing principle matched p.
-   */
-  std::pair<Principle*,id_t> GetPrinciple(EVP_PKEY* p);
+  // Query the Principle DB for the given principle.
+  inline Principle* GetPrinciple(Principle::id_t id) {
+    return pdb_->Get(id);
+  }
 
-  /** Retrieve the principle whose index is id. Returns NULL if no such
-   * principle has an id of id.
-   */
-  Principle* GetPrinciple(id_t id);
+  inline Principle* GetPrinciple(EVP_PKEY* public_key) {
+    return pdb_->Get(public_key).first;
+  }
 
   // Ensures that a principle object is present for each principle listed
   // in the LaRPC configuration. Closes any channels whose local client no
   // longer exists.
   // Expects state_lock_ to be locked.
-  // 
+  //
   // principles may be NULL, in which case principles will be read from the
   // file given in the configuration.
   void ReplacePrinciples(set<Principle*>* principles);
-  
+
   /** Calls machine_key_gen to generate a new machine key and stores it
    * in the file named by new_keyfile. Returns true on success and false on
    * failure.
@@ -147,7 +117,7 @@ class LaRPCFactory {
   bool GenerateMachineKey(const string& new_keyfile);
 
   /** Begin asynchronously accepting connections on the control port. This
-   * function returns immediately. All further processing occurs in the 
+   * function returns immediately. All further processing occurs in the
    * same thread as provided by the Network layer.
    */
   void Accept();
@@ -159,7 +129,7 @@ class LaRPCFactory {
   void Shutdown();
 
  private:
-  EVP_PKEY* ReadMachineKey(const Config& config);
+  EVP_PKEY* ReadMachineKey(const proto::Config& config);
 
   // Decrypt the machine key stored in encrypted_machine_key;
   // may block if it needs to read a password from stdin.
@@ -174,9 +144,9 @@ class LaRPCFactory {
 
   void ShutdownUnderLock_();
 
-  bool LoadPrinciplesFromConfig(const Config& config, 
+  bool LoadPrinciplesFromConfig(const proto::Config& config,
                                 set<Principle*>* out_principles);
-  
+
   // Removes a principle and closes any open channels associated with it.
   // Expects a reference to a principle that exists inside of principles_.
   void RemovePrinciple(Principle* p);
@@ -187,27 +157,19 @@ class LaRPCFactory {
   // operations regarding the principle should use this pointer.
   Principle* HandleNewPrinciple(Principle* p, bool is_local = false);
 
-  // Add 
+  // Add
   void HandleNewLocalPrinciple(Principle* principle_in_map);
 
   void HandleAccept(Socket* s, const ::boost::system::error_code& error);
-
-  void AssignNextAvailablePrincipleId(Principle* p);
-
-  bool AdoptLocalPrinciple(Principle* p, EVP_PKEY* private_key);
 
   // Total per-instance LaRPC library state. This tracks all Multiplexers and
   // Principles, both local and non-local. Changes to these data structures
   // requires holding state_lock_.
   mutex state_lock_;
   set<Multiplexer*> multiplexers_;
-  hash_map<int, Principle*> principles_;
-  set<Principle*> local_principles_;
   PrincipleChannelMap channels_by_local_principle_;
   PrincipleChannelMap channels_by_remote_principle_;
-
-  PrincipleIdMap principle_id_map_;
-  id_t next_available_id_;
+  auto_ptr<PrincipleDatabase> pdb_;
 
   // Local machine key (private key should be present).
   EVP_PKEY* machine_key_;
@@ -217,7 +179,7 @@ class LaRPCFactory {
   KeyStore key_store_;
 
   // Configuration data structure.
-  Config config_;
+  proto::Config config_;
 
   // ASIO layer; contains the connection-acceptor and IO service.
   tcp::endpoint listen_endpoint_;

@@ -13,7 +13,7 @@
 #include <openssl/x509.h>
 #include "proto/larpc.pb.h"
 
-namespace larpc { 
+namespace larpc {
 
 using std::map;
 using std::string;
@@ -30,11 +30,11 @@ class CryptoInterface {
  public:
   CryptoInterface(uint64_t last_generated_serial, secure_time_fn time_fn);
 
-  bool GenerateKey(const KeygenParameters& params, EVP_PKEY** out_key);
-  
+  bool GenerateKey(const proto::KeygenParameters& params, EVP_PKEY** out_key);
+
   bool EncryptBuffer(unsigned char* buffer,
                      int buffer_size_bytes,
-                     const EncryptionDescriptor& descriptor,
+                     const proto::EncryptionDescriptor& descriptor,
                      KeyStore* key_store,
                      unsigned char** out_encrypted_buffer,
                      size_t* out_buffer_size_bytes);
@@ -42,13 +42,13 @@ class CryptoInterface {
   bool PasswordEncryptBuffer(unsigned char* buffer,
                              size_t buffer_size_bytes,
                              const string& password,
-                             const EncryptionDescriptor& descriptor,
+                             const proto::EncryptionDescriptor& descriptor,
                              unsigned char** out_decrypted_buffer,
                              size_t* out_buffer_size_bytes);
 
   bool DecryptBuffer(unsigned char* buffer,
                      int buffer_size_bytes,
-                     const EncryptionDescriptor& descriptor,
+                     const proto::EncryptionDescriptor& descriptor,
                      KeyStore* key_store,
                      unsigned char** out_decrypted_buffer,
                      size_t* out_buffer_size_bytes);
@@ -56,7 +56,7 @@ class CryptoInterface {
   bool PasswordDecryptBuffer(unsigned char* buffer,
                              size_t buffer_size_bytes,
                              const string& password,
-                             const EncryptionDescriptor& descriptor,
+                             const proto::EncryptionDescriptor& descriptor,
                              unsigned char** out_decrypted_buffer,
                              size_t* out_buffer_size_bytes);
 

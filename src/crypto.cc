@@ -19,20 +19,20 @@
 namespace larpc {
 
 CryptoInterface::CryptoInterface(uint64_t last_generated_serial,
-                                 secure_time_fn time_fn) : 
+                                 secure_time_fn time_fn) :
     time_fn_(time_fn), last_generated_serial_(last_generated_serial) {
   crypto_init_locking_services();
 }
 
-bool CryptoInterface::GenerateKey(const KeygenParameters& params, EVP_PKEY** out_key) {
+bool CryptoInterface::GenerateKey(const proto::KeygenParameters& params, EVP_PKEY** out_key) {
   EVP_PKEY_CTX* ctx;
   EVP_PKEY* key = NULL;
-  
+
   int type_nid = OBJ_sn2nid(params.key_type().c_str());
 
   if (type_nid == EVP_PKEY_RSA || type_nid == EVP_PKEY_RSA2) {
     ctx = EVP_PKEY_CTX_new_id(type_nid, NULL);
-    
+
     if(!ctx) {
       LOG(ERROR) << "Cannot initialize key generation context for a key of type "
                  << params.key_type();
@@ -103,7 +103,7 @@ bool CryptoInterface::GenerateKey(const KeygenParameters& params, EVP_PKEY** out
       EVP_PKEY_CTX_free(ctx);
       EVP_PKEY_CTX_free(param_ctx);
       return false;
-    }      
+    }
 
     ctx = EVP_PKEY_CTX_new(param_key, NULL);
 
@@ -139,11 +139,11 @@ bool CryptoInterface::GenerateKey(const KeygenParameters& params, EVP_PKEY** out
 }
 
 bool CryptoInterface::DecryptBuffer(unsigned char* buffer,
-                   int buffer_size_bytes,
-                   const EncryptionDescriptor& descriptor,
-                   KeyStore* key_store,
-                   unsigned char** out_decrypted_buffer,
-                   size_t* out_buffer_size_bytes) {
+                                    int buffer_size_bytes,
+                                    const proto::EncryptionDescriptor& descriptor,
+                                    KeyStore* key_store,
+                                    unsigned char** out_decrypted_buffer,
+                                    size_t* out_buffer_size_bytes) {
   if (descriptor.is_password_based()) {
     return PasswordDecryptBuffer(buffer,
                                  buffer_size_bytes,
@@ -156,7 +156,7 @@ bool CryptoInterface::DecryptBuffer(unsigned char* buffer,
   // Asymmetric decryption
   EVP_PKEY* public_key = key_store->Get(descriptor.key_hash());
   if (!public_key) {
-    LOG(ERROR) << "Public Key " << descriptor.key_hash() 
+    LOG(ERROR) << "Public Key " << descriptor.key_hash()
                << " not found; cannot decrypt buffer!";
     return false;
   }
@@ -201,10 +201,10 @@ bool CryptoInterface::DecryptBuffer(unsigned char* buffer,
   }
 
   uint8_t* decrypted_buffer = new uint8_t[out_bufsize];
-  if (!EVP_PKEY_decrypt(ctx, 
-                        decrypted_buffer, 
-                        &out_bufsize, 
-                        buffer, 
+  if (!EVP_PKEY_decrypt(ctx,
+                        decrypted_buffer,
+                        &out_bufsize,
+                        buffer,
                         buffer_size_bytes)) {
     LOG(ERROR) << "Cannot decrypt buffer!";
     EVP_PKEY_CTX_free(ctx);
@@ -220,11 +220,11 @@ bool CryptoInterface::DecryptBuffer(unsigned char* buffer,
 }
 
 bool CryptoInterface::PasswordDecryptBuffer(unsigned char* buffer,
-                           size_t buffer_size_bytes,
-                           const string& password,
-                           const EncryptionDescriptor& descriptor,
-                           unsigned char** out_decrypted_buffer,
-                           size_t* out_buffer_size_bytes) {
+                                            size_t buffer_size_bytes,
+                                            const string& password,
+                                            const proto::EncryptionDescriptor& descriptor,
+                                            unsigned char** out_decrypted_buffer,
+                                            size_t* out_buffer_size_bytes) {
   const EVP_CIPHER* cipher = EVP_get_cipherbyname(descriptor.cipher().c_str());
   if (!cipher) {
     LOG(ERROR) << "Invalid cipher: " << descriptor.cipher();
@@ -241,10 +241,10 @@ bool CryptoInterface::PasswordDecryptBuffer(unsigned char* buffer,
   unsigned char evp_key[EVP_MAX_KEY_LENGTH] = {'\0'};
   unsigned char evp_iv[EVP_MAX_IV_LENGTH] = {'\0'};
 
-  int key_length = EVP_BytesToKey(cipher, 
-                                  digest, 
-                                  NULL, 
-                                  (const unsigned char*) password.c_str(), 
+  int key_length = EVP_BytesToKey(cipher,
+                                  digest,
+                                  NULL,
+                                  (const unsigned char*) password.c_str(),
                                   password.length(),
                                   EVP_BYTESTOKEY_COUNT,
                                   evp_key,
@@ -264,11 +264,11 @@ bool CryptoInterface::PasswordDecryptBuffer(unsigned char* buffer,
 
   EVP_CIPHER_CTX_set_key_length(&ctx, key_length);
 
-  int decrypted_buffer_length = key_length + buffer_size_bytes; 
-  unsigned char* evp_decrypted_buffer = 
+  int decrypted_buffer_length = key_length + buffer_size_bytes;
+  unsigned char* evp_decrypted_buffer =
     new unsigned char[decrypted_buffer_length];
 
-  if (!EVP_DecryptUpdate(&ctx, 
+  if (!EVP_DecryptUpdate(&ctx,
                          (unsigned char*) evp_decrypted_buffer,
                          &decrypted_buffer_length,
                          buffer,
@@ -290,11 +290,11 @@ bool CryptoInterface::PasswordDecryptBuffer(unsigned char* buffer,
 }
 
 bool CryptoInterface::EncryptBuffer(unsigned char* buffer,
-                   int buffer_size_bytes,
-                   const EncryptionDescriptor& descriptor,
-                   KeyStore* key_store,
-                   unsigned char** out_encrypted_buffer,
-                   size_t* out_buffer_size_bytes) {
+                                    int buffer_size_bytes,
+                                    const proto::EncryptionDescriptor& descriptor,
+                                    KeyStore* key_store,
+                                    unsigned char** out_encrypted_buffer,
+                                    size_t* out_buffer_size_bytes) {
   if (descriptor.is_password_based()) {
     return PasswordEncryptBuffer(buffer,
                                  buffer_size_bytes,
@@ -307,7 +307,7 @@ bool CryptoInterface::EncryptBuffer(unsigned char* buffer,
   // Asymmetric decryption
   EVP_PKEY* private_key = key_store->Get(descriptor.key_hash());
   if (!private_key) {
-    LOG(ERROR) << "Private Key " << descriptor.key_hash() 
+    LOG(ERROR) << "Private Key " << descriptor.key_hash()
                << " not found; cannot decrypt buffer!";
     return false;
   }
@@ -353,10 +353,10 @@ bool CryptoInterface::EncryptBuffer(unsigned char* buffer,
   }
 
   uint8_t* encrypted_buffer = new uint8_t[out_bufsize];
-  if (!EVP_PKEY_encrypt(ctx, 
-                        encrypted_buffer, 
-                        &out_bufsize, 
-                        buffer, 
+  if (!EVP_PKEY_encrypt(ctx,
+                        encrypted_buffer,
+                        &out_bufsize,
+                        buffer,
                         buffer_size_bytes)) {
     LOG(ERROR) << "Cannot decrypt buffer!";
     EVP_PKEY_CTX_free(ctx);
@@ -371,11 +371,11 @@ bool CryptoInterface::EncryptBuffer(unsigned char* buffer,
 }
 
 bool CryptoInterface::PasswordEncryptBuffer(unsigned char* buffer,
-                           size_t buffer_size_bytes,
-                           const string& password,
-                           const EncryptionDescriptor& descriptor,
-                           unsigned char** out_encrypted_buffer,
-                           size_t* out_buffer_size_bytes) {
+                                            size_t buffer_size_bytes,
+                                            const string& password,
+                                            const proto::EncryptionDescriptor& descriptor,
+                                            unsigned char** out_encrypted_buffer,
+                                            size_t* out_buffer_size_bytes) {
   const EVP_CIPHER* cipher = EVP_get_cipherbyname(descriptor.cipher().c_str());
   if (!cipher) {
     LOG(ERROR) << "Invalid cipher: " << descriptor.cipher();
@@ -392,10 +392,10 @@ bool CryptoInterface::PasswordEncryptBuffer(unsigned char* buffer,
   unsigned char evp_key[EVP_MAX_KEY_LENGTH] = {'\0'};
   unsigned char evp_iv[EVP_MAX_IV_LENGTH] = {'\0'};
 
-  int key_length = EVP_BytesToKey(cipher, 
-                                  digest, 
-                                  NULL, 
-                                  (const unsigned char*) password.c_str(), 
+  int key_length = EVP_BytesToKey(cipher,
+                                  digest,
+                                  NULL,
+                                  (const unsigned char*) password.c_str(),
                                   password.length(),
                                   EVP_BYTESTOKEY_COUNT,
                                   evp_key,
@@ -415,11 +415,11 @@ bool CryptoInterface::PasswordEncryptBuffer(unsigned char* buffer,
 
   EVP_CIPHER_CTX_set_key_length(&ctx, key_length);
 
-  int encrypted_buffer_length = key_length + buffer_size_bytes; 
-  unsigned char* evp_encrypted_buffer = 
+  int encrypted_buffer_length = key_length + buffer_size_bytes;
+  unsigned char* evp_encrypted_buffer =
     new unsigned char[encrypted_buffer_length];
 
-  if (!EVP_EncryptUpdate(&ctx, 
+  if (!EVP_EncryptUpdate(&ctx,
                          evp_encrypted_buffer,
                          &encrypted_buffer_length,
                          buffer,
@@ -442,8 +442,8 @@ bool CryptoInterface::PasswordEncryptBuffer(unsigned char* buffer,
 
 typedef int(*ExtractFunction)(BIO*, void*);
 
-static bool PEMSerialize(ExtractFunction extract_fn, 
-                         void* obj, 
+static bool PEMSerialize(ExtractFunction extract_fn,
+                         void* obj,
                          string* out_encoded_data) {
   BIO* buf_bio = BIO_new(BIO_s_mem());
 
@@ -525,7 +525,7 @@ bool CryptoInterface::PrivateKeyToPKCS8String(EVP_PKEY* private_key, string* out
   char* buf_start;
   int buf_size = BIO_get_mem_data(b, &buf_start);
   out_encoded_key->assign(buf_start, buf_size);
-  
+
   BIO_free(b);
   return true;
 }
@@ -534,15 +534,15 @@ static bool BuildX509Name(const map<string,string>& kv, X509_NAME* out_name) {
   for (map<string,string>::const_iterator it = kv.begin();
        it != kv.end();
        ++it) {
-    if (!X509_NAME_add_entry_by_txt(out_name, 
+    if (!X509_NAME_add_entry_by_txt(out_name,
                                     (*it).first.c_str(),
-                                    MBSTRING_ASC, 
+                                    MBSTRING_ASC,
                                     (const unsigned char*) (*it).second.c_str(),
                                     -1,
                                     -1,
                                     0)) {
-      LOG(ERROR) << "Bad key-value pair in X509 Name: " << 
-        (*it).first << "=" << 
+      LOG(ERROR) << "Bad key-value pair in X509 Name: " <<
+        (*it).first << "=" <<
         (*it).second;
 
       return false;
@@ -555,7 +555,7 @@ static bool BuildX509Name(const map<string,string>& kv, X509_NAME* out_name) {
 X509* CryptoInterface::CreateCertificate(const map<string,string>& subject,
                                          EVP_PKEY* subject_public_key,
                                          int num_valid_days,
-                                         const map<string,string>& issuer, 
+                                         const map<string,string>& issuer,
                                          EVP_PKEY* issuer_public_key,
                                          EVP_PKEY* issuer_private_key) {
   X509* cert = X509_new();
@@ -578,15 +578,15 @@ X509* CryptoInterface::CreateCertificate(const map<string,string>& subject,
       !X509_gmtime_adj(X509_get_notBefore(cert), now_unix_ts) ||
       !X509_gmtime_adj(X509_get_notAfter(cert), now_unix_ts + (long)60*60*24*num_valid_days) ||
       !X509_set_pubkey(cert, subject_public_key) ||
-      
+
       !BuildX509Name(subject, X509_get_subject_name(cert)) ||
       !BuildX509Name(issuer, X509_get_issuer_name(cert))) {
-    
+
     LOG(ERROR) << "Cannot construct certificate!";
     X509_free(cert);
     return NULL;
   }
-  
+
   if (!X509_sign(cert, issuer_private_key, EVP_sha1())) {
     LOG(ERROR) << "Cannot sign certificate!";
     X509_free(cert);

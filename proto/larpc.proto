@@ -1,7 +1,7 @@
 // LaRPC Protocol Buffers
 // Copyright 2010 Andrew Reusch
 
-package larpc;
+package larpc.proto;
 
 message EncryptionDescriptor {
         optional string cipher = 1;
@@ -41,16 +41,19 @@ message Config {
 
         required string trust_certificate_issuer_cn = 6;
         required int32 trust_certificate_expiration_time_days = 7;
+
+        optional bool advertise_principles = 8 [ default = false ];
+        optional bool advertise_services = 9 [ default = false ];
 }
 
-message ChannelMessage {
-        repeated RPCRequest requests = 1;
-        repeated RPCResponse responses = 2;
-        optional ChannelControl control = 3;
+message MultiplexerMessage {
+        required string channel_id = 1;
+        optional ChannelControl control = 2;
+        optional bytes raw_data = 3;
 }
 
 message ChannelSetup {
-        required string machine_id = 1;
+        required string machine_public_key = 1;
 
         // NOTE: Although this uses the same data structure as the configuration stream to describe
         // a Principle, it is expected that only the public fields will be filled.
@@ -62,6 +65,11 @@ message PrincipleVersionRecord {
         required string hash = 2;
 }
 
+message ACLEntry {
+        // X.509 Cert listing the trust
+        required string x509_certificate = 1;
+}
+
 message PrincipleDescriptor {
         // Three required fields for each Principle:
         //  - Display name, which is displayed to the user
@@ -71,21 +79,21 @@ message PrincipleDescriptor {
         required string public_key = 2;
         required uint32 version = 3;
 
+        // -----------------------[ PRIVATE FIELDS ]---------------------------------
+        // Fields below this line should not be transmitted to other nodes without
+        // stronger security verification.
+
         // List of known authorizing certificates for this principle. Each node that we know is
         // currently authorized to act on behalf of the principle should have given us
         // an X509 cert saying it trusts the principle.
 
         // If we are authorized to act on behalf of the principle, a trusting
-        // X509 cert will be present, issued by our machine private
-        repeated string trusting_x509_certificate = 4;
+        // X509 cert will be present, issued by the principle's private key.
+        repeated ACLEntry acls = 4;
 
-        // -----------------------[ PRIVATE FIELDS ]---------------------------------
-        // Fields below this line should not be transmitted to other nodes without
-        // stronger security verification. 
-
-        // If we are able to (with aid of decryption) act on behalf of the principle,
-        // a private key will be present.
-        optional string encrypted_private_key = 6;
+        // If we are able to (with aid of decryption via human interaction) act
+        // on behalf of the principle, a private key will be present.
+        repeated string encrypted_private_key = 6;
         optional EncryptionDescriptor private_key_encryption_descriptor = 7;
 
         // Version history; tracks updates to Prinicple metadata. All updates to basic
@@ -101,7 +109,7 @@ message MethodDescriptor {
 message RPCRequest {
         optional string channel_id = 1;
         optional uint32 request_id = 2;
-        
+
         optional MethodDescriptor method_id = 3;
 
         optional bytes method_parameters = 4;
@@ -111,7 +119,7 @@ message RPCResponse {
         optional string channel_id = 1;
         optional uint32 request_id = 2;
 
-        optional bytes response = 3;       
+        optional bytes response = 3;
 }
 
 message OpenChannelRequest {

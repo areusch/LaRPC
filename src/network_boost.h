@@ -21,7 +21,7 @@ using ::std::auto_ptr;
 class BoostSocket : public Socket {
   public:
   tcp::socket s_;
-  
+
   BoostSocket(io_service& service);
 
   virtual tcp::endpoint GetLocalEndpoint();
@@ -29,8 +29,8 @@ class BoostSocket : public Socket {
 
   virtual bool IsOpen();
 
-  virtual void Write(::boost::asio::const_buffers_1 b, TransferCallback cb);
-  virtual void Read(::boost::asio::mutable_buffers_1 b, TransferCallback cb);
+  virtual void Write(::boost::asio::const_buffer b, TransferCallback cb);
+  virtual void Read(::boost::asio::mutable_buffer b, TransferCallback cb);
 
   virtual void Close();
 
@@ -41,7 +41,7 @@ class BoostServerSocket : public ServerSocket {
  protected:
   tcp::acceptor acceptor_;
   io_service& service_;
-  
+
  public:
   BoostServerSocket(io_service& io);
 

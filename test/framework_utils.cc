@@ -48,11 +48,11 @@ DEFINE_uint64(key_size,
 namespace larpc {
 namespace test {
 
-Principle* GeneratePrinciple(PrincipleDescriptor* p, 
-                             EVP_PKEY* machine_key, 
-                             CryptoInterface* crypto, 
+Principle* GeneratePrinciple(proto::PrincipleDescriptor* p,
+                             EVP_PKEY* machine_key,
+                             CryptoInterface* crypto,
                              const string& principle_name) {
-  KeygenParameters params;
+  proto::KeygenParameters params;
   params.set_key_type(FLAGS_key_cipher);
   params.set_num_bits(FLAGS_key_size);
 
@@ -61,7 +61,7 @@ Principle* GeneratePrinciple(PrincipleDescriptor* p,
                                            << FLAGS_key_cipher
                                            << " with " << FLAGS_key_size
                                            << " bits.";
-  
+
   string key_encoded;
   CHECK(CryptoInterface::PublicKeyToPKCS8String(key, &key_encoded))
     << "Cannot serialize newly-generated key!";
@@ -69,48 +69,47 @@ Principle* GeneratePrinciple(PrincipleDescriptor* p,
   CHECK(key_encoded.size() > 30) << "Key size not sufficient!";
 
   auto_ptr<Principle> principle(new Principle(key, principle_name));
-  
+
   map<string,string> machine_name;
   machine_name["CN"] = "Machine " + principle_name;
 
-  CHECK(principle->SignAdoptPrivateKey(crypto, key, 100, machine_name, machine_key)) <<
-    "Can't sign/adopt private key!";
   principle->MergePublicPrivateData(p, crypto);
   return principle.release();
 }
 
 EVP_PKEY* GenerateMachineKey(CryptoInterface* crypto) {
-  KeygenParameters params;
+  proto::KeygenParameters params;
   params.set_key_type(FLAGS_key_cipher);
   params.set_num_bits(FLAGS_key_size);
-  
+
   EVP_PKEY* key;
   CHECK(crypto->GenerateKey(params, &key)) << "Cannot generate a key of type "
                                            << FLAGS_key_cipher
                                            << " with " << FLAGS_key_size
                                            << " bits.";
-  
+
   return key;
-}  
+}
 
 void GenerateTestNode(NodeConfig* node, CryptoInterface* crypto) {
-  int num_principles = 
+  int num_principles =
     (float(rand()) * FLAGS_num_principles_per_node_stdev * 2 / RAND_MAX) +
     FLAGS_num_principles_per_node;
 
   EVP_PKEY* machine_key = GenerateMachineKey(crypto);
   CHECK(CryptoInterface::PublicKeyToPKCS8String(machine_key, node->mutable_machine_key())) <<
     "Unexpectedly cannot serialize machine public key!";
-  
+
   CHECK(crypto->PrivateKeyToPKCS8String(machine_key, node->mutable_machine_private_key())) <<
     "Unexpectedly cannot serialize machine private key!";
-  
+
   for (int i = 0; i < num_principles; ++i) {
     int principle_num_str_size_bytes = 15;
     char principle_num_str[principle_num_str_size_bytes];
-    CHECK(snprintf(principle_num_str, principle_num_str_size_bytes, "%d", i) != 
+    CHECK(snprintf(principle_num_str, principle_num_str_size_bytes, "%d", i) !=
           principle_num_str_size_bytes);
     GeneratePrinciple(node->add_principles(), machine_key, crypto, string("Principle ") + principle_num_str);
+    // TODO add principle to a PDB
   }
 }
 
@@ -143,7 +142,7 @@ int main(int argc, char** argv) {
     usage += argv[0];
     usage += " --gen_test_config [options]\n\n"
       "Options are shown below.\n";
-    
+
     google::SetUsageMessage(usage);
     google::ParseCommandLineFlags(&argc, &argv, true);
   }
@@ -162,7 +161,7 @@ int main(int argc, char** argv) {
 
     ostream* output_stream = &cout;
     if (FLAGS_test_config != "") {
-      output_stream = new fstream(FLAGS_test_config.c_str(), 
+      output_stream = new fstream(FLAGS_test_config.c_str(),
                                   fstream::out | fstream::trunc);
       if (!output_stream || !((fstream*) output_stream)->is_open()) {
         LOG(ERROR) << "Unexpected error while opening output stream!";

@@ -26,15 +26,15 @@ class Socket {
   virtual tcp::endpoint GetLocalEndpoint() = 0;
   virtual tcp::endpoint GetRemoteEndpoint() = 0;
 
-  virtual void Write(::boost::asio::const_buffers_1 b, TransferCallback cb) = 0;
-  virtual void Read(::boost::asio::mutable_buffers_1 b, TransferCallback cb) = 0;
-  
+  virtual void Write(::boost::asio::const_buffer b, TransferCallback cb) = 0;
+  virtual void Read(::boost::asio::mutable_buffer b, TransferCallback cb) = 0;
+
   virtual void Close() = 0;
 };
 
 typedef ::boost::function2<void, Socket*, const ::boost::system::error_code&> AcceptCallback;
 
-class ServerSocket {  
+class ServerSocket {
  public:
   virtual ~ServerSocket() {}
 

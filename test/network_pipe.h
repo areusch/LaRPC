@@ -56,14 +56,14 @@ class PipeSubnet : public ::boost::thread {
 
  private:
   void Runner();
-  
+
   address network_;
   unsigned int mask_;
 
   ::boost::mutex nodes_guard_;
   typedef map<address, PipeNetwork*> NodeMap;
   NodeMap nodes_;
-  
+
   ::boost::mutex op_lock_;
   volatile bool shutdown_;
   ::boost::condition_variable op_cond_;
@@ -76,20 +76,20 @@ class PipeSocket : public Socket {
   PipeSocket(PipeNetwork* network, const tcp::endpoint& local_ep, PipeSocket* other);
 
   void Bind(PipeSocket* other);
-  
+
   void WriteToBuffer(::boost::asio::const_buffers_1 b, TransferCallback cb);
   void ShutdownBoth();
   void BindAndConnect(tcp::endpoint target, PipeSubnet* net, ConnectCallback cb);
-  void ReadBuffer(::boost::asio::mutable_buffers_1 b, TransferCallback cb);  
+  void ReadBuffer(::boost::asio::mutable_buffers_1 b, TransferCallback cb);
  public:
   virtual ~PipeSocket();
   virtual bool IsOpen();
   virtual tcp::endpoint GetLocalEndpoint();
   virtual tcp::endpoint GetRemoteEndpoint();
-  
-  virtual void Write(::boost::asio::const_buffers_1 b, TransferCallback cb);
-  virtual void Read(::boost::asio::mutable_buffers_1 b, TransferCallback cb);
-  
+
+  virtual void Write(::boost::asio::const_buffer b, TransferCallback cb);
+  virtual void Read(::boost::asio::mutable_buffer b, TransferCallback cb);
+
   virtual void Close();
  protected:
   friend class PipeNetwork;
@@ -123,7 +123,7 @@ class PipeServerSocket : public ServerSocket {
 
   friend class PipeNetwork;
   volatile bool open_;
-  
+
   tcp::endpoint local_endpoint_;
   PipeNetwork* network_;
 
@@ -144,7 +144,7 @@ class PipeNetwork : public Network {
 
   virtual ServerSocket* Listen(const tcp::endpoint& ep);
   virtual Socket* Connect(const tcp::endpoint& ep, ConnectCallback cb);
-  
+
   PipeServerSocket* GetSocketAt(unsigned int port);
 
   void Shutdown();

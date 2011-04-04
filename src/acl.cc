@@ -28,4 +28,8 @@ bool ACL::IsAccessGranted(const ActionSpecifier& action) {
   return (*it).second;
 }
 
+bool ACL::SerializeToACLList(::google::protobuf::RepeatedPtrField<proto::ACLEntry>* acls) {
+  return true;
+}
+
 } // namespace larpc

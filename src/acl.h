@@ -8,7 +8,10 @@
 #define _ACL_H
 
 #include <string>
+#include <map>
 #include "hash_map.h"
+#include <openssl/x509.h>
+#include "proto/larpc.pb.h"
 
 namespace larpc {
 class ActionSpecifier;
@@ -23,15 +26,18 @@ namespace larpc {
 class Principle;
 class ACL;
 
+using std::map;
 using std::string;
 
 class ActionSpecifier {
  public:
-  ActionSpecifier(Principle* principle, 
+  ActionSpecifier(Principle* principle,
                   const string& object,
                   const string& action);
 
   bool operator==(const ActionSpecifier& other) const;
+
+  bool FillIdentityMap(map<string,string>* out_map) const;
 
  private:
   Principle* principle_;
@@ -45,18 +51,34 @@ class ActionSpecifier {
 } // namespace larpc
 
 HASHTABLE_NAMESPACE_START
-template <> 
+template <>
 struct hash<larpc::ActionSpecifier> {
  public:
   long operator()(const larpc::ActionSpecifier& a) const {
-    return long(a.principle_) + 
-      hash<const char*>()(a.object_.c_str()) + 
+    return long(a.principle_) +
+      hash<const char*>()(a.object_.c_str()) +
       hash<const char*>()(a.action_.c_str());
   }
 };
 HASHTABLE_NAMESPACE_END
 
 namespace larpc {
+
+class ACLEntry {
+ public:
+  ACLEntry(X509* cert);
+  ACLEntry(Principle* principle,
+           const string& object,
+           const string& action);
+
+  const string& GetAction() const;
+  const string& GetObject() const;
+
+ private:
+  Principle* p;
+  string object_;
+  string action_;
+};
 
 class ACL {
   typedef hash_map<ActionSpecifier,bool,hash<ActionSpecifier> > AclHashMap;
@@ -66,6 +88,8 @@ class ACL {
 
   void SetAccess(const ActionSpecifier& action, bool granted);
   bool IsAccessGranted(const ActionSpecifier& action);
+
+  bool SerializeToACLList(::google::protobuf::RepeatedPtrField<proto::ACLEntry>* acls);
 
  private:
   Principle* principle_;
