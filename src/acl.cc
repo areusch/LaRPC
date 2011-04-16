@@ -8,8 +8,16 @@
 
 namespace larpc {
 
+ACLEntry* ACLEntry::Create(Principle* p, const string& object, const string& action) {
+  if (!p->IsPrivateKeyDecrypted())
+    return NULL;
+
+  // Todo
+  return NULL;
+}
+
 bool ActionSpecifier::operator==(const ActionSpecifier& other) const {
-  return principle_ == other.principle_ &&
+  return entity_ == other.entity_ &&
     object_ == other.object_ &&
     action_ == other.action_;
 }

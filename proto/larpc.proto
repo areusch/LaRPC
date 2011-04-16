@@ -65,9 +65,23 @@ message PrincipleVersionRecord {
         required string hash = 2;
 }
 
+// Represents a role in LaRPC. A role consists of the public key of the creating
+// principle taken together with a series of X509 certs. All X509 certs should
+// be signed by creator_public_key or one of its derivatives (i.e. there should be
+// an X.509 chain from the signer of the cert to creator_public_key).
+// The targets of the X.509 certs are the public keys of the principles allowed to
+// play this role.
+message Role {
+        required PrincipleDescriptor creator = 1;
+        repeated string granting_x509_cert = 3;
+}
+
 message ACLEntry {
+        // Identity being issued the trust
+        required string identity = 1;
+
         // X.509 Cert listing the trust
-        required string x509_certificate = 1;
+        required string x509_certificate = 2;
 }
 
 message PrincipleDescriptor {

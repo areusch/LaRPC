@@ -38,6 +38,7 @@ HASHTABLE_NAMESPACE_END
 namespace larpc {
 
 using ::google::protobuf::io::ZeroCopyInputStream;
+using ::google::protobuf::io::ZeroCopyOutputStream;
 using ::std::string;
 
 class LaRPCFactory;
@@ -145,6 +146,14 @@ class PrincipleDatabase {
   bool AdoptAsLocal(Principle* p,
                     EVP_PKEY* private_key,
                     int expiry_time_days);
+
+  /**
+   * Serialize the PDB to a zero-copy stream
+   *
+   * @param out ZeroCopyOutputStream to write to.
+   * @return true if the data written is a complete copy of the PDB.
+   */
+  bool Serialize(ZeroCopyOutputStream* out, CryptoInterface* crypto);
  private:
   /**
    * Determine the next free principle ID and call p->SetId passing
@@ -165,6 +174,17 @@ class PrincipleDatabase {
 
 } // namespace larpc
 
+
+HASHTABLE_NAMESPACE_START
+
+template<>
+struct hash<larpc::Principle*> {
+  long operator()(larpc::Principle* const a) const {
+    return hash<EVP_PKEY*>()(a->GetPublicKey());
+  }
+};
+
+HASHTABLE_NAMESPACE_END
 
 #endif // _SRC_PDB_H
 

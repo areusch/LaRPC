@@ -11,7 +11,9 @@
 #include <map>
 #include "hash_map.h"
 #include <openssl/x509.h>
+#include "identity.h"
 #include "proto/larpc.pb.h"
+#include "principle.h"
 
 namespace larpc {
 class ActionSpecifier;
@@ -40,7 +42,7 @@ class ActionSpecifier {
   bool FillIdentityMap(map<string,string>* out_map) const;
 
  private:
-  Principle* principle_;
+  Identity* entity_;
   string object_;
   string action_;
 
@@ -55,21 +57,22 @@ template <>
 struct hash<larpc::ActionSpecifier> {
  public:
   long operator()(const larpc::ActionSpecifier& a) const {
-    return long(a.principle_) +
-      hash<const char*>()(a.object_.c_str()) +
-      hash<const char*>()(a.action_.c_str());
+    return a.entity_->Hash();
   }
 };
+
 HASHTABLE_NAMESPACE_END
 
 namespace larpc {
 
 class ACLEntry {
  public:
+  static ACLEntry* Create(Principle* principle,
+                          const string& object,
+                          const string& action);
+
+
   ACLEntry(X509* cert);
-  ACLEntry(Principle* principle,
-           const string& object,
-           const string& action);
 
   const string& GetAction() const;
   const string& GetObject() const;

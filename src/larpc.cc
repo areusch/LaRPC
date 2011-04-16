@@ -225,7 +225,7 @@ bool LaRPCFactory::LoadPrinciplesFromConfig(const proto::Config& config,
   proto::PrincipleDescriptor p;
   int num_failed_parses = 0;
   while (p.ParseFromZeroCopyStream(&principle_stream)) {
-    auto_ptr<Principle> principle(Principle::FromDescriptor(this, p));
+    auto_ptr<Principle> principle(Principle::FromDescriptor(pdb_.get(), p));
     if (principle.get()) {
       new_principles->insert(principle.release());
     } else {

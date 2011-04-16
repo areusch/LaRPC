@@ -6,6 +6,7 @@
 
 #include "pdb.h"
 #include <utility>
+#include <boost/foreach.hpp>
 
 namespace larpc {
 
@@ -79,6 +80,19 @@ PrincipleDatabase::const_iterator PrincipleDatabase::begin() const {
 
 PrincipleDatabase::const_iterator PrincipleDatabase::end() const {
   return principles_by_id_.end();
+}
+
+bool PrincipleDatabase::Serialize(ZeroCopyOutputStream* out, CryptoInterface* crypto) {
+  typedef pair<id_t, Principle*> hash_map_iterator;
+  BOOST_FOREACH(hash_map_iterator it, principles_by_id_) {
+    proto::PrincipleDescriptor desc;
+    it.second->MergePublicPrivateData(&desc, crypto);
+
+    if (!desc.SerializeToZeroCopyStream(out))
+      return false;
+  }
+
+  return true;
 }
 
 } // namespace larpc

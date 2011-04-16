@@ -11,6 +11,7 @@
 #include <openssl/engine.h>
 #include <openssl/evp.h>
 #include <openssl/pem.h>
+#include <openssl/safestack.h>
 #include <openssl/x509.h>
 #include "constants.h"
 #include "crypto_lock.h"
@@ -490,6 +491,22 @@ bool CryptoInterface::X509ToString(X509* x509, string* out_encoded_cert) {
                       out_encoded_cert);
 }
 
+bool CryptoInterface::X509FromString(const string& encoded_cert, X509** out_cert) {
+  CHECK_NOTNULL(out_cert);
+
+  BIO* b = BIO_new_mem_buf((void*) encoded_cert.c_str(), encoded_cert.length());
+
+  string password("");
+
+  if (!PEM_read_bio_X509(b, out_cert, NULL, (void*) password.c_str())) {
+    BIO_free(b);
+    return false;
+  }
+
+  BIO_free(b);
+  return true;
+}
+
 bool CryptoInterface::PublicKeyFromPKCS8String(const string& pkcs8, EVP_PKEY** out_key) {
   BIO* b = BIO_new_mem_buf((void*) pkcs8.c_str(), pkcs8.length());
 
@@ -530,32 +547,10 @@ bool CryptoInterface::PrivateKeyToPKCS8String(EVP_PKEY* private_key, string* out
   return true;
 }
 
-static bool BuildX509Name(const map<string,string>& kv, X509_NAME* out_name) {
-  for (map<string,string>::const_iterator it = kv.begin();
-       it != kv.end();
-       ++it) {
-    if (!X509_NAME_add_entry_by_txt(out_name,
-                                    (*it).first.c_str(),
-                                    MBSTRING_ASC,
-                                    (const unsigned char*) (*it).second.c_str(),
-                                    -1,
-                                    -1,
-                                    0)) {
-      LOG(ERROR) << "Bad key-value pair in X509 Name: " <<
-        (*it).first << "=" <<
-        (*it).second;
-
-      return false;
-    }
-  }
-
-  return true;
-}
-
-X509* CryptoInterface::CreateCertificate(const map<string,string>& subject,
+X509* CryptoInterface::CreateCertificate(const X509Name& subject,
                                          EVP_PKEY* subject_public_key,
                                          int num_valid_days,
-                                         const map<string,string>& issuer,
+                                         const X509Name& issuer,
                                          EVP_PKEY* issuer_public_key,
                                          EVP_PKEY* issuer_private_key) {
   X509* cert = X509_new();
@@ -579,8 +574,8 @@ X509* CryptoInterface::CreateCertificate(const map<string,string>& subject,
       !X509_gmtime_adj(X509_get_notAfter(cert), now_unix_ts + (long)60*60*24*num_valid_days) ||
       !X509_set_pubkey(cert, subject_public_key) ||
 
-      !BuildX509Name(subject, X509_get_subject_name(cert)) ||
-      !BuildX509Name(issuer, X509_get_issuer_name(cert))) {
+      !subject.Fill(X509_get_subject_name(cert)) ||
+      !issuer.Fill(X509_get_issuer_name(cert))) {
 
     LOG(ERROR) << "Cannot construct certificate!";
     X509_free(cert);
@@ -595,5 +590,141 @@ X509* CryptoInterface::CreateCertificate(const map<string,string>& subject,
 
   return cert;
 }
+
+X509Name::X509Name() {}
+
+X509Name::~X509Name() {}
+
+X509Name::X509Name(const map<string,string>& kv) : map_(kv.begin(), kv.end()) {}
+
+X509Name::X509Name(X509_NAME* name) {
+  for (int x = 0; x < X509_NAME_entry_count(name); ++x) {
+    X509_NAME_ENTRY* entry = X509_NAME_get_entry(name, x);
+    if (!entry)
+      continue;
+
+    // Owned by name.
+    ASN1_STRING* k = X509_NAME_ENTRY_get_data(entry);
+    if (!k)
+      continue;
+
+    ASN1_OBJECT* v = X509_NAME_ENTRY_get_object(entry);
+    if (!v)
+      continue;
+
+    char obj_text[80];
+    if (!OBJ_obj2txt(obj_text, 80, v, 0))
+      continue;
+
+    map_[string((const char*) obj_text)] = string((const char*) M_ASN1_STRING_data(k));
+  }
+}
+
+bool X509Name::Fill(X509_NAME* out_name) const {
+  for (Map::const_iterator it = map_.begin();
+       it != map_.end();
+       ++it) {
+    if (!X509_NAME_add_entry_by_txt(out_name,
+                                    (*it).first.c_str(),
+                                    MBSTRING_ASC,
+                                    (const unsigned char*) (*it).second.c_str(),
+                                    -1,
+                                    -1,
+                                    0)) {
+      LOG(ERROR) << "Bad key-value pair in X509 Name: " <<
+        (*it).first << "=" <<
+        (*it).second;
+
+      return false;
+    }
+  }
+
+  return true;
+}
+
+string& X509Name::operator[](const string& k) {
+  return map_[k];
+}
+
+int X509Name::size() const {
+  return map_.size();
+}
+
+X509Name::Map::iterator X509Name::find(const string& key) {
+  return map_.find(key);
+}
+
+X509Name::Map::iterator X509Name::begin() {
+  return map_.begin();
+}
+
+X509Name::Map::iterator X509Name::end() {
+  return map_.end();
+}
+
+X509Verifier::X509Verifier() : trusted_certs_(X509_STORE_new()),
+                               untrusted_certs_(sk_X509_new_null()),
+                               crls_(sk_X509_CRL_new_null()) {}
+
+X509Verifier::~X509Verifier() {
+  X509_STORE_free(trusted_certs_);
+  sk_X509_free(untrusted_certs_);
+  sk_X509_CRL_free(crls_);
+}
+
+X509* X509Verifier::LoadCert(BIO* b) {
+  X509* x = X509_new();
+  if (d2i_X509_bio(b, &x))
+    return x;
+
+  X509_free(x);
+  return NULL;
+}
+
+bool X509Verifier::ExportCert(X509* x, BIO* b) {
+  return !!i2d_X509_bio(b, x);
+}
+
+X509_CRL* X509Verifier::LoadCRL(BIO* b) {
+ X509_CRL* x = X509_CRL_new();
+  if (d2i_X509_CRL_bio(b, &x))
+    return x;
+
+  X509_CRL_free(x);
+  return NULL;
+}
+
+int X509Verifier::LoadTrustedCerts(BIO* b) {
+  int num_loaded = 0;
+  for (X509* x = LoadCert(b); x; x = LoadCert(b)) {
+    if (X509_STORE_add_cert(trusted_certs_, x))
+      num_loaded++;
+  }
+
+  return num_loaded;
+}
+
+int X509Verifier::LoadUntrustedCerts(BIO* b) {
+  int num_loaded = 0;
+  for (X509* x = LoadCert(b); x; x = LoadCert(b)) {
+    if (sk_X509_push(untrusted_certs_, x))
+      num_loaded++;
+  }
+
+  return num_loaded;
+}
+
+int X509Verifier::LoadCRLs(BIO* b) {
+  int num_loaded = 0;
+  for (X509_CRL* x = LoadCRL(b); x; x = LoadCRL(b)) {
+    if (sk_X509_CRL_push(crls_, x))
+      num_loaded++;
+  }
+
+  return num_loaded;
+}
+
+//int X509Verifier::ExportTrustedCerts(BIO* b) {
+//  for (X509* x =
 
 } // namespace larpc

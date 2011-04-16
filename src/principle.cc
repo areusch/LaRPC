@@ -5,6 +5,8 @@
  */
 
 #include "principle.h"
+#include <sstream>
+#include <boost/lexical_cast.hpp>
 #include <glog/logging.h>
 #include <openssl/crypto.h>
 #include "acl.h"
@@ -13,9 +15,11 @@
 
 namespace larpc {
 
+using ::boost::lexical_cast;
 using ::std::pair;
+using ::std::stringstream;
 
-Principle* Principle::FromDescriptor(LaRPCFactory* factory,
+Principle* Principle::FromDescriptor(PrincipleDatabase* pdb,
                                      const proto::PrincipleDescriptor& descriptor) {
   if (!descriptor.IsInitialized())
     return NULL;
@@ -27,7 +31,7 @@ Principle* Principle::FromDescriptor(LaRPCFactory* factory,
     return NULL;
   }
 
-  Principle* existing_principle = factory->GetPrinciple(public_key);
+  Principle* existing_principle = pdb->Get(public_key).first;
 
   if (existing_principle) {
     EVP_PKEY_free(public_key);
@@ -96,12 +100,20 @@ unsigned int Principle::GetId() const {
   return id_;
 }
 
+bool Principle::IsOwnedByPDB() const {
+  return id_ != -1;
+}
+
 void Principle::SetAcl(ACL* acl) {
   acl_ = acl;
 }
 
 bool Principle::DecryptPrivateKey() {
   return false;
+}
+
+bool Principle::IsPrivateKeyDecrypted() const {
+  return true;
 }
 
 bool Principle::HasPrivateKey() const {
@@ -150,9 +162,66 @@ bool Principle::AddPrivateKey(EVP_PKEY* private_key) {
 
   private_key_ = private_key;
 
-
-
   return true;
+}
+
+// X509_NAME encoding:
+//  - PK = base64-encoded public key
+//  - DN = Display Name
+//  - V = Version
+//
+// Receiving nodes should be able to verify that the display name was valid
+// at some point in the past by constructing an appropriate principle, hashing
+// the public parts, and verifying the hash against its version history.
+bool Principle::FillX509Name(CryptoInterface* crypto, X509_NAME* out_name) {
+  map<string,string> out_map;
+
+  string encoded_pubkey;
+  if (!crypto->PublicKeyToPKCS8String(public_key_, &encoded_pubkey))
+    return false;
+
+  out_map["PK"] = encoded_pubkey;
+  out_map["DN"] = name_;
+  stringstream version_converter;
+  version_converter << version_;
+  CHECK(!version_converter.fail()) << "Cannot encode principle version";
+
+  out_map["V"] = version_converter.str();
+  X509Name name(out_map);
+  return name.Fill(out_name);
+}
+
+Principle* Principle::FromX509Name(X509Name* name,
+                                   PrincipleDatabase* pdb) {
+  if (name->find("PK") == name->end() ||
+      name->find("DN") == name->end() ||
+      name->find("V") == name->end())
+    return NULL;
+
+  stringstream ss((*name)["V"]);
+  uint32_t version;
+  ss >> version;
+  if (ss.fail())
+    return NULL;
+
+  EVP_PKEY* pubkey = NULL;
+  if (!CryptoInterface::PublicKeyFromPKCS8String((*name)["PK"], &pubkey))
+    return NULL;
+
+  if (pdb) {
+    // Try to find principle
+    pair<Principle*, Principle::id_t> existing_principle = pdb->Get(pubkey);
+    if (existing_principle.first) {
+      EVP_PKEY_free(pubkey);
+      return existing_principle.first;
+    }
+  }
+
+  // Principle does not exist; construct it.
+  auto_ptr<Principle> new_principle(new Principle(pubkey, (*name)["DN"]));
+  new_principle->version_ = version;
+
+  return new_principle.release();
 }
 
 // TODO migrate to pdb

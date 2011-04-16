@@ -21,6 +21,7 @@ using ::std::string;
 
 class ACL;
 class LaRPCFactory;
+class PrincipleDatabase;
 
 // All LaRPC priniciples have a public key and a set of machine keys that
 // that principle trusts. Most of the security model is concerned with keeping
@@ -29,8 +30,13 @@ class Principle {
  public:
   typedef unsigned int id_t;
 
-  static Principle* FromDescriptor(LaRPCFactory* factory,
+  static Principle* FromDescriptor(PrincipleDatabase* pdb,
                                    const proto::PrincipleDescriptor& descriptor);
+
+  // Deserialize the public identifying parts of a principle from an X509 name.
+  // If you pass an optional PDB, returns the Principle contained in the PDB.
+  static Principle* FromX509Name(X509Name* name,
+                                 PrincipleDatabase* pdb = NULL);
 
   Principle(EVP_PKEY* public_key, const string& name);
 
@@ -47,11 +53,15 @@ class Principle {
   string GetName() const;
   EVP_PKEY* GetPublicKey() const;
   unsigned int GetId() const;
+
+  bool IsOwnedByPDB() const;
+
   bool HasPrivateKey() const;
 
   void SetAcl(ACL* acl);
 
   bool DecryptPrivateKey();
+  bool IsPrivateKeyDecrypted() const;
 
   bool AddPrivateKey(EVP_PKEY* private_key);
 
@@ -74,6 +84,9 @@ class Principle {
   // Clone me. Returns a copy of the principle. Underlying cryptographic objects are simply
   // refcounted, not copied (no OpenSSL EVP_PKEY_dup() :()
   Principle* Clone();
+
+  // Serialize the public identifying parts of this principle into an X509 name.
+  bool FillX509Name(CryptoInterface* crypto, X509_NAME* out_name);
 
  private:
   EVP_PKEY* public_key_;
